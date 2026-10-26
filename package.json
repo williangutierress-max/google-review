@@ -1,0 +1,12 @@
+{
+  "name": "placa-nfc-google",
+  "version": "1.0.0",
+  "description": "Placa NFC de avaliações no Google",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
+}

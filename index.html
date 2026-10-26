@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Placa NFC de avaliações no Google — Mais 5 estrelas com um toque</title>
+<script src="config.js"></script>
+<meta name="description" content="Placa NFC já configurada com o link do seu Google Meu Negócio. O cliente encosta o celular e a avaliação abre na hora. Sem app, sem mensalidade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--tint:#E8F0FE;--tint2:#F4F8FE;--ink:#202124;--muted:#5F6368;--line:#DADCE0;--blue:#1A73E8;--blue-d:#174EA6;--star:#FBBC04;--green:#188038;--card:#fff;--bar:#174EA6;--bar-ink:#fff;color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-family:Outfit,Figtree,system-ui,sans-serif;margin:0;letter-spacing:-.02em;line-height:1.1}
+h1{font-size:clamp(2.2rem,8.4vw,4.1rem);font-weight:800}
+h2{font-size:clamp(1.7rem,5.4vw,2.7rem);font-weight:800}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.wrap{max-width:520px;margin:0 auto;padding:0 20px}
+section{padding:68px 0}
+.center{text-align:center}
+.sub{color:var(--muted);font-size:1.12rem;max-width:54ch}
+.center .sub{margin:14px auto 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;font-weight:700;text-decoration:none;padding:17px 30px;border-radius:999px;font-size:1.08rem;box-shadow:0 10px 24px -10px var(--blue);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,summary:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+.btn.pulse{animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,115,232,.5)}70%{box-shadow:0 0 0 16px rgba(26,115,232,0)}100%{box-shadow:0 0 0 0 rgba(26,115,232,0)}}
+
+/* urgência */
+.top{position:sticky;top:0;z-index:20;background:var(--bar);color:var(--bar-ink);text-align:center;padding:calc(9px + env(safe-area-inset-top,0px)) 12px 9px;font-weight:500;font-size:.92rem}
+.top b{color:var(--star);font-variant-numeric:tabular-nums;font-size:1.02rem;margin-left:6px}
+
+/* hero */
+.hero{background:var(--bg);padding:42px 0 30px;overflow:hidden;text-align:center}
+.hero .wrap{display:grid;gap:30px}
+.badge{display:inline-flex;gap:8px;align-items:center;background:var(--tint);color:var(--blue-d);font-weight:700;font-size:.9rem;padding:7px 14px;border-radius:999px;margin-bottom:18px}
+:root[data-theme="dark"] .badge{color:var(--blue)}
+.hero .sub{margin:18px auto 24px;font-size:1.18rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:20px;color:var(--muted);font-weight:500;font-size:.95rem}
+.chips span::before{content:"✓";color:var(--green);font-weight:800;margin-right:6px}
+
+.hero .chips{justify-content:center}
+/* medidor sob a headline */
+.meter{margin-top:26px;display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px;max-width:430px;box-shadow:0 12px 30px -20px rgba(26,115,232,.6)}
+.meter .n{font:800 2.7rem/1 Outfit,sans-serif;color:var(--blue-d);min-width:2.5ch;font-variant-numeric:tabular-nums}
+:root[data-theme="dark"] .meter .n{color:var(--blue)}
+.stars{color:var(--star);letter-spacing:2px;font-size:1.15rem}
+.meter small{display:block;color:var(--muted);font-size:.88rem}
+.bars{flex:1;display:grid;gap:4px}
+.bars i{display:block;height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+.bars i::after{content:"";display:block;height:100%;width:var(--w);background:var(--star);transform-origin:left;animation:grow 2.4s .3s both cubic-bezier(.2,.8,.2,1)}
+@keyframes grow{from{transform:scaleX(0)}}
+.toast{margin-top:12px;max-width:430px;height:54px;position:relative}
+.toast div{position:absolute;inset:0;display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px;font-size:.92rem;opacity:0;transform:translateY(14px);transition:.5s}
+.toast div.on{opacity:1;transform:none}
+.toast em{font-style:normal;color:var(--muted);margin-left:auto;font-size:.8rem}
+
+/* ==================== CENA: CELULAR + PLACA NFC ==================== */
+.scene{position:relative;height:425px;max-width:390px;width:100%;margin:10px auto 26px;perspective:1000px}
+.counter{position:absolute;left:10px;right:10px;bottom:16px;height:14px;border-radius:12px;background:linear-gradient(180deg,#E8EAED,#D2D6DC);box-shadow:0 6px 16px rgba(0,0,0,0.06);z-index:1}
+.counter-shadow{position:absolute;left:30px;right:30px;bottom:8px;height:12px;border-radius:50%;background:rgba(0,0,0,0.12);filter:blur(8px);z-index:0}
+
+/* Placa NFC de Acrílico */
+.plate{position:absolute;left:8px;bottom:26px;width:164px;height:210px;border-radius:22px;background:linear-gradient(155deg,#1A73E8 0%,#1557BF 55%,#0F47A1 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:Outfit,sans-serif;box-shadow:0 24px 38px -12px rgba(21,87,191,0.65),inset 0 1px 1px rgba(255,255,255,0.4);border:2px solid rgba(255,255,255,0.3);z-index:2;padding:12px 10px;overflow:hidden}
+.plate-gloss{position:absolute;top:-50%;left:-60%;width:120%;height:200%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.22) 50%,transparent 60%);pointer-events:none;transform:rotate(25deg)}
+.plate-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%}
+.google-badge{width:36px;height:36px;background:#fff;border-radius:50%;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,0.15);margin-bottom:6px}
+.google-badge .g-logo{width:22px;height:22px}
+.plate-stars{color:#FBBC04;font-size:1.15rem;letter-spacing:2px;margin-bottom:2px;text-shadow:0 0 10px rgba(251,188,4,0.6)}
+.plate-title{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;opacity:.9;font-weight:600}
+.plate-brand{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.plate-nfc-icon{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.15);display:grid;place-items:center;margin-bottom:4px}
+.plate-nfc-icon svg{width:20px;height:20px;color:#fff}
+.plate-tap{font-size:.72rem;font-weight:700;color:#E8F0FE;background:rgba(0,0,0,0.2);padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.15)}
+.plate-base{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:70px;height:6px;background:rgba(255,255,255,0.35);border-radius:4px 4px 0 0}
+
+/* Ondas NFC */
+.wave{position:absolute;left:10px;bottom:45px;width:160px;height:160px;border-radius:50%;border:2.5px solid var(--blue);opacity:0;z-index:1;pointer-events:none;animation:wv 7s infinite ease-out}
+.w1{animation-delay:0s}.w2{animation-delay:.35s}.w3{animation-delay:.7s}
+@keyframes wv{0%,26%{opacity:0;transform:scale(.6)}36%{opacity:.85;border-color:#4285F4}64%{opacity:0;transform:scale(2.2);border-color:#FBBC04}100%{opacity:0}}
+
+/* Celular */
+.phone{position:absolute;right:8px;bottom:34px;width:182px;height:355px;border-radius:32px;background:#181A1F;padding:7px;box-shadow:0 32px 55px -16px rgba(15,23,42,0.6),0 0 0 2px #374151;z-index:4;animation:tap 7s ease-in-out infinite}
+.phone-island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:46px;height:10px;background:#000;border-radius:8px;z-index:10}
+@keyframes tap{0%,6%{transform:translate(46px,16px) rotate(8deg)}30%,72%{transform:translate(-74px,-6px) rotate(-2deg)}100%{transform:translate(46px,16px) rotate(8deg)}}
+
+.screen{position:relative;width:100%;height:100%;border-radius:26px;background:#fff;color:#202124;overflow:hidden;font-size:.68rem;line-height:1.35;font-family:Figtree,system-ui,sans-serif}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:5px 12px 2px;font-size:.6rem;font-weight:700;color:#3C4043;z-index:5;position:relative}
+
+/* Tela 1: Perfil Padaria Sol */
+.s1{position:absolute;inset:0;padding-top:22px;display:flex;flex-direction:column}
+.s1 .hd{height:88px;background:linear-gradient(135deg,#AECBFA 0%,#4285F4 60%,#1A73E8 100%);position:relative;display:flex;align-items:flex-end;padding:8px}
+.hd-overlay{position:absolute;inset:0;background:radial-gradient(circle at 75% 30%,rgba(255,255,255,0.3),transparent)}
+.store-badge{position:absolute;right:10px;bottom:-12px;width:34px;height:34px;background:#fff;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;box-shadow:0 4px 10px rgba(0,0,0,0.18)}
+.s1 .bd{padding:14px 10px 8px;flex:1}
+.biz-name{font:800 .98rem Outfit,sans-serif;color:#202124;display:flex;align-items:center;gap:4px}
+.chk-ic{width:14px;height:14px}
+.biz-rating{display:flex;align-items:center;gap:4px;margin:2px 0;font-weight:700;color:#3C4043}
+.g-stars{color:#FBBC04;font-size:.85rem;letter-spacing:1px}
+.biz-count{font-weight:400;color:#70757A}
+.biz-type{font-size:.68rem;color:#70757A;margin-bottom:8px}
+.s1 .act{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:4px;margin:8px 0}
+.act-btn{display:flex;align-items:center;justify-content:center;gap:3px;border:1px solid #DADCE0;border-radius:10px;padding:5px 2px;font-weight:700;font-size:.65rem;color:#1A73E8;background:#fff}
+.act-btn i{font-style:normal;font-size:.7rem}
+.act-btn.hot{background:#1A73E8;color:#fff;border-color:#1A73E8;box-shadow:0 2px 6px rgba(26,115,232,0.4)}
+.mock-line{height:6px;border-radius:4px;background:#F1F3F4;margin-top:7px}
+
+/* Tela 2: Modal de Avaliação 5 Estrelas */
+.s2{position:absolute;inset:0;background:#fff;opacity:0;animation:s2 7s infinite;padding:32px 10px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;z-index:6}
+@keyframes s2{0%,38%{opacity:0;pointer-events:none}44%,80%{opacity:1;pointer-events:auto}88%,100%{opacity:0;pointer-events:none}}
+.s2-glogo{margin-bottom:4px}
+.s2-title{font:700 .9rem Outfit,sans-serif;color:#202124;margin-bottom:8px}
+.s2-user{display:flex;align-items:center;gap:8px;background:#F8F9FA;padding:4px 8px;border-radius:12px;margin-bottom:8px;width:100%;text-align:left;box-sizing:border-box}
+.user-av{width:22px;height:22px;border-radius:50%;background:#1A73E8;color:#fff;font-weight:700;font-size:.68rem;display:grid;place-items:center}
+.user-info{line-height:1.2}
+.user-info b{font-size:.7rem;color:#202124;display:block}
+.user-info small{font-size:.58rem;color:#70757A;display:block}
+.s2-stars{font-size:1.4rem;letter-spacing:3px;margin:4px 0 8px;display:flex;justify-content:center}
+.s2-stars i{font-style:normal;color:#DADCE0;animation:stf 7s infinite;transition:color .2s}
+.s2-stars i:nth-child(2){animation-delay:.12s}.s2-stars i:nth-child(3){animation-delay:.24s}.s2-stars i:nth-child(4){animation-delay:.36s}.s2-stars i:nth-child(5){animation-delay:.48s}
+@keyframes stf{0%,42%{color:#DADCE0;transform:scale(1)}50%,80%{color:#FBBC04;text-shadow:0 0 6px rgba(251,188,4,0.6)}88%,100%{color:#DADCE0}}
+.s2-tx{border:1px solid #DADCE0;border-radius:10px;padding:6px 8px;text-align:left;color:#3C4043;font-size:.64rem;width:100%;background:#F8F9FA;min-height:42px;box-sizing:border-box}
+.s2-btn{margin-top:10px;background:#1A73E8;color:#fff;border-radius:999px;padding:7px 14px;font-weight:700;font-size:.7rem;width:100%;box-shadow:0 4px 10px rgba(26,115,232,0.35);box-sizing:border-box}
+
+/* ==================== SEÇÃO PICK (CATEGORIAS) ==================== */
+.pick{margin:22px 0 8px;text-align:center}
+.pick h2{font-size:clamp(1.4rem,4.5vw,1.75rem);font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.pick-sub{color:var(--muted);font-size:.96rem;margin:6px auto 16px;max-width:44ch}
+.pick .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.pick .opt{display:flex;align-items:center;gap:12px;text-align:left;min-height:76px;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;cursor:pointer;transition:all .2s cubic-bezier(.2,.8,.2,1);position:relative;box-shadow:0 2px 6px rgba(0,0,0,0.03)}
+.pick .opt *{pointer-events:none}
+.pick .opt:hover{border-color:var(--blue);background:#fff;transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(26,115,232,0.35)}
+.pick .opt:focus-visible{outline:3px solid var(--star);outline-offset:2px}
+.pick .opt.on{background:var(--tint);border-color:var(--blue);color:var(--blue-d);transform:scale(0.98)}
+.opt-ic{font-size:1.6rem;width:42px;height:42px;border-radius:12px;background:var(--tint);display:grid;place-items:center;flex-shrink:0}
+:root[data-theme="dark"] .opt-ic{background:rgba(255,255,255,0.08)}
+.opt-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.opt-txt strong{font:700 .96rem/1.25 Outfit,sans-serif;color:var(--ink);white-space:normal}
+.opt-txt small{font-size:.78rem;color:var(--muted);white-space:normal}
+.opt-arr{font-size:1.1rem;color:var(--muted);opacity:.5;transition:transform .2s,opacity .2s;margin-left:auto}
+.pick .opt:hover .opt-arr{opacity:1;color:var(--blue);transform:translateX(3px)}
+
+/* blocos */
+.grid{display:grid;gap:14px;margin-top:34px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}
+.card p{color:var(--muted);margin-top:8px}
+.ic{width:46px;height:46px;border-radius:14px;background:var(--tint);display:grid;place-items:center;font-size:1.4rem;margin-bottom:14px}
+.alt{background:var(--bg)}
+.steps{list-style:none;margin:36px 0 0;padding:0;display:grid;gap:14px;counter-reset:s;position:relative}
+.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;position:relative}
+.steps li::before{content:counter(s);position:absolute;top:-14px;left:20px;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font:800 .95rem Outfit,sans-serif;display:grid;place-items:center}
+.steps p{color:var(--muted);margin-top:6px}
+
+/* antes e depois */
+.cmp{display:grid;gap:16px;margin-top:34px}
+.biz{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;position:relative}
+.biz.after{border:2px solid var(--blue);box-shadow:0 20px 40px -26px var(--blue)}
+.biz .tag{position:absolute;top:-13px;left:18px;background:var(--line);color:var(--ink);font-weight:700;font-size:.82rem;padding:4px 12px;border-radius:999px}
+.after .tag{background:var(--blue);color:#fff}
+.biz .nm{font:700 1.15rem Outfit,sans-serif}
+.biz .rt{display:flex;align-items:baseline;gap:8px;margin:6px 0;color:var(--muted)}
+.biz .rt b{font:800 2rem Outfit,sans-serif;color:var(--ink)}
+.biz .rt .stars{font-size:1rem}
+.biz .pos{color:var(--muted);font-size:.92rem;margin-top:6px}
+.after .pos{color:var(--green);font-weight:700}
+.ill{color:var(--muted);font-size:.85rem;text-align:center;margin-top:14px}
+
+/* oferta */
+.offer{max-width:520px;margin:34px auto 0;background:var(--card);border:2px solid var(--blue);border-radius:28px;padding:34px 24px;text-align:center;box-shadow:0 30px 60px -34px var(--blue);position:relative}
+.offer .tag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:var(--star);color:#202124;font-weight:800;font-size:.85rem;padding:6px 16px;border-radius:999px;white-space:nowrap}
+.old{color:var(--muted);text-decoration:line-through;margin-top:6px}
+.price{font:800 4rem/1 Outfit,sans-serif;color:var(--blue-d);margin:4px 0}
+:root[data-theme="dark"] .price{color:var(--blue)}
+.price small{font-size:1.3rem;font-weight:700}
+.offer ul{list-style:none;padding:0;margin:22px 0;display:grid;gap:10px;text-align:left}
+.offer li::before{content:"✓";color:var(--green);font-weight:800;margin-right:10px}
+.offer .btn{width:100%}
+.timer{display:inline-block;margin-top:14px;font-size:.92rem;color:var(--muted)}
+.timer b{color:#D93025;font-variant-numeric:tabular-nums}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-top:10px}
+summary{font-weight:700;cursor:pointer}
+details p{color:var(--muted);margin-top:10px}
+.final{background:linear-gradient(135deg,#1A73E8,#174EA6);color:#fff;border-radius:30px;padding:50px 24px}
+.final .sub{color:#DCE8FD}
+.final .btn{background:#fff;color:#174EA6;margin-top:24px;box-shadow:none}
+footer{padding:34px 0 40px;text-align:center;color:var(--muted);font-size:.9rem}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.rv.in{opacity:1;transform:none}
+
+@media (min-width:860px){
+  :root:not([data-theme="dark"]){--bg:#F4F5F7}
+  .top{font-size:.88rem;padding-top:7px;padding-bottom:7px}
+  .wrap{max-width:560px}
+  .hero{padding:26px 0 36px}
+  .hero .wrap{gap:0}
+  .badge{margin-bottom:12px}
+  h1{font-size:2.35rem}
+  .hero .sub{font-size:1.02rem;margin:12px auto 6px;max-width:44ch}
+  .scene{transform:scale(.78);transform-origin:top center;margin:0 auto -75px}
+  .pick{background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px 20px 20px;margin-top:10px;box-shadow:0 12px 30px -20px rgba(32,33,36,.25)}
+  .pick h2{font-size:1.4rem}
+  .pick .opts{margin-top:14px;gap:12px}
+  .pick .opt{min-height:72px;padding:12px 14px}
+  .hero .chips{margin-top:18px;font-size:.9rem}
+}
+@media (max-width:480px){
+  .scene{transform:scale(0.92);transform-origin:center center;margin:4px auto 14px}
+  .pick .opts{grid-template-columns:1fr;gap:10px}
+  .pick .opt{min-height:66px;padding:10px 12px}
+  .opt-ic{width:38px;height:38px;font-size:1.35rem}
+  .opt-txt strong{font-size:.92rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .rv{opacity:1;transform:none}.phone{transform:translate(-74px,-6px) rotate(-2deg)}
+}
+</style>
+<style>
+#qzo{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column}
+#qzo[hidden]{display:none}
+.qbar{padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;border-bottom:1px solid var(--line);background:#fff}
+.qbar button{background:none;border:0;color:var(--blue);font:700 .95rem Figtree,sans-serif;cursor:pointer;padding:8px 4px}
+#qzo iframe{flex:1;border:0;width:100%;background:#fff}
+@media (min-width:860px){#qzo,#qzo iframe{background:#F4F5F7}}
+</style>
+</head>
+<body>
+
+<div class="top">🔥 Oferta de lançamento termina em <b id="cd">00:00:00</b></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="badge">⭐ Placa NFC para o Google Meu Negócio</span>
+      <h1>Mais avaliações 5 estrelas no Google. Com um toque no celular.</h1>
+      <p class="sub">Coloque a placa no balcão: o cliente encosta o celular e a tela de avaliação do seu negócio abre na hora. Sem app, sem QR Code e sem mensalidade.</p>
+      <div class="scene" aria-hidden="true">
+        <!-- Balcão e sombra -->
+        <div class="counter"></div>
+        <div class="counter-shadow"></div>
+
+        <!-- Ondas de aproximação NFC -->
+        <i class="wave w1"></i>
+        <i class="wave w2"></i>
+        <i class="wave w3"></i>
+
+        <!-- Placa de Acrílico Oficial -->
+        <div class="plate">
+          <div class="plate-gloss"></div>
+          <div class="plate-inner">
+            <div class="google-badge">
+              <svg viewBox="0 0 24 24" class="g-logo">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.09C3.26 21.36 7.37 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.32a7.13 7.13 0 0 1 0-4.64V6.59H1.24a11.97 11.97 0 0 0 0 10.82l4.04-3.09z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.26 2.64 1.24 6.59l4.04 3.09c.95-2.83 3.6-4.93 6.72-4.93z"/>
+              </svg>
+            </div>
+            <div class="plate-stars">★★★★★</div>
+            <div class="plate-title">Avalie-nos no</div>
+            <div class="plate-brand">Google</div>
+            <div class="plate-nfc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M6 9a6 6 0 0 1 0 6M10 6.5a10 10 0 0 1 0 11M14 4a14 14 0 0 1 0 16"/>
+              </svg>
+            </div>
+            <div class="plate-tap">Encoste o celular</div>
+          </div>
+          <div class="plate-base"></div>
+        </div>
+
+        <!-- Smartphone Interativo -->
+        <div class="phone">
+          <div class="phone-island"></div>
+          <div class="screen">
+            <!-- Barra de status superior -->
+            <div class="phone-status">
+              <span>9:41</span>
+              <span>📶 5G 🔋</span>
+            </div>
+
+            <!-- Tela 1: Perfil Padaria Sol no Maps -->
+            <div class="s1">
+              <div class="hd">
+                <div class="hd-overlay"></div>
+                <span class="store-badge">🥖</span>
+              </div>
+              <div class="bd">
+                <div class="biz-name">Padaria Sol <svg viewBox="0 0 16 16" fill="#1A73E8" class="chk-ic"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4-4.999a.75.75 0 0 0-.02-1.041z"/></svg></div>
+                <div class="biz-rating">4,9 <span class="g-stars">★★★★★</span> <span class="biz-count">(187)</span></div>
+                <div class="biz-type">Padaria · Aberto agora</div>
+                <div class="act">
+                  <div class="act-btn"><i>📍</i> Rotas</div>
+                  <div class="act-btn"><i>📞</i> Ligar</div>
+                  <div class="act-btn hot"><i>⭐</i> Avaliar</div>
+                </div>
+                <div class="mock-line" style="width:92%"></div>
+                <div class="mock-line" style="width:75%"></div>
+              </div>
+            </div>
+
+            <!-- Tela 2: Modal de Avaliação 5 Estrelas -->
+            <div class="s2">
+              <div class="s2-glogo">
+                <svg viewBox="0 0 24 24" width="22" height="22">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.09C3.26 21.36 7.37 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.32a7.13 7.13 0 0 1 0-4.64V6.59H1.24a11.97 11.97 0 0 0 0 10.82l4.04-3.09z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.26 2.64 1.24 6.59l4.04 3.09c.95-2.83 3.6-4.93 6.72-4.93z"/>
+                </svg>
+              </div>
+              <div class="s2-title">Avalie a Padaria Sol</div>
+              <div class="s2-user">
+                <span class="user-av">W</span>
+                <div class="user-info">
+                  <b>Willian S.</b>
+                  <small>Avaliação pública</small>
+                </div>
+              </div>
+              <div class="s2-stars">
+                <i>★</i><i>★</i><i>★</i><i>★</i><i>★</i>
+              </div>
+              <div class="s2-tx">
+                <span>"Atendimento excelente, voltarei! ⭐"</span>
+              </div>
+              <div class="s2-btn">
+                <span>Publicar avaliação</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pick">
+        <h2>Pra começar: qual é o tipo do seu negócio?</h2>
+        <p class="pick-sub">Personalizamos sua placa NFC para o seu comércio:</p>
+        <div class="opts">
+          <button type="button" class="opt" data-t="Barbearia, salão ou estética">
+            <span class="opt-ic">💈</span>
+            <span class="opt-txt">
+              <strong>Barbearia, salão ou estética</strong>
+              <small>Cabelo, barba e beleza</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+          <button type="button" class="opt" data-t="Restaurante, bar ou lanchonete">
+            <span class="opt-ic">🍔</span>
+            <span class="opt-txt">
+              <strong>Restaurante, bar ou lanchonete</strong>
+              <small>Comidas, bebidas e cafés</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+          <button type="button" class="opt" data-t="Clínica ou consultório">
+            <span class="opt-ic">🏥</span>
+            <span class="opt-txt">
+              <strong>Clínica ou consultório</strong>
+              <small>Saúde, estética e odonto</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+          <button type="button" class="opt" data-t="Academia ou estúdio">
+            <span class="opt-ic">🏋️</span>
+            <span class="opt-txt">
+              <strong>Academia ou estúdio</strong>
+              <small>Fitness, pilates e dança</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+          <button type="button" class="opt" data-t="Loja, mercado ou pet shop">
+            <span class="opt-ic">🛍️</span>
+            <span class="opt-txt">
+              <strong>Loja, mercado ou pet shop</strong>
+              <small>Varejo, pet e conveniência</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+          <button type="button" class="opt" data-t="Serviços e outros">
+            <span class="opt-ic">💼</span>
+            <span class="opt-txt">
+              <strong>Serviços e outros</strong>
+              <small>Oficinas, escritórios e mais</small>
+            </span>
+            <span class="opt-arr">→</span>
+          </button>
+        </div>
+      </div>
+      <div class="chips"><span>Já vem configurada</span><span>iPhone e Android</span><span>Pagamento único</span></div>
+    </div>
+  </div>
+</header>
+
+<script>
+(function(){
+  var p=function(n){return String(n).padStart(2,"0")};
+  function tick(){
+    var n=new Date(),e=new Date(n);e.setHours(23,59,59,999);
+    var s=Math.max(0,Math.floor((e-n)/1000)),t=p(Math.floor(s/3600))+":"+p(Math.floor(s%3600/60))+":"+p(s%60);
+    ["cd"].forEach(function(i){var x=document.getElementById(i);if(x)x.textContent=t});
+  }
+  tick();setInterval(tick,1000);
+})();
+</script>
+<div id="qzo" hidden><div class="qbar"><button id="qx" type="button">← Voltar para a página</button></div></div>
+<script type="text/template" id="qz-tpl"><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Configure a sua placa NFC de avaliações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1A73E8;--blue-d:#174EA6;--tint:#E8F0FE;--ink:#202124;--muted:#5F6368;--line:#DADCE0;--star:#FBBC04;--green:#188038;--red:#D93025;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font:400 17px/1.5 Figtree,system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Outfit,Figtree,sans-serif;margin:0;letter-spacing:-.02em;line-height:1.12}
+h1{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:800}
+h2{font-size:1.4rem;font-weight:800}
+p{margin:0}
+.wrap{max-width:520px;margin:0 auto;padding:0 20px}
+.hd{display:flex;justify-content:space-between;align-items:center;padding-top:16px;padding-bottom:12px;border-bottom:1px solid var(--line);max-width:none}
+.logo{font:800 1.3rem Outfit,sans-serif;color:var(--blue-d)}
+.tr{font-size:.85rem;color:var(--muted)}.st,.stars{color:var(--star);letter-spacing:1px}
+.sub{color:var(--muted);margin-top:10px}
+#app{padding-bottom:50px}
+.step{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.btn{display:block;width:100%;margin-top:22px;background:var(--blue);color:#fff;border:0;border-radius:999px;padding:17px;font:700 1.05rem Figtree,sans-serif;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 10px 22px -12px var(--blue);transition:.15s}
+.btn:hover{background:var(--blue-d)}
+.btn[disabled]{opacity:.4;box-shadow:none;cursor:default}
+.btn.alt{background:#fff;color:var(--blue);border:2px solid var(--blue);box-shadow:none}
+.btn:focus-visible,.opt:focus-visible,.in:focus-visible{outline:3px solid var(--star);outline-offset:2px}
+.lnk{display:block;margin:14px auto 0;background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;font-size:.95rem}
+.opts{display:grid;gap:12px;margin-top:24px}
+.opt{text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;font:500 1.05rem Figtree,sans-serif;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--blue)}.opt.on{background:var(--tint);border-color:var(--blue);color:var(--blue-d);font-weight:700}
+.in{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font:400 1.05rem Figtree,sans-serif;color:var(--ink);background:#fff;margin-top:6px}
+label{display:block;font-weight:700;margin-top:18px;font-size:.95rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.search{margin-top:22px}
+.res{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:8px;cursor:pointer;font:inherit}
+.res small{display:block;color:var(--muted)}
+.bz{background:var(--tint);border:2px solid var(--blue);border-radius:20px;padding:18px;margin-top:20px}
+.bt{display:flex;gap:14px;align-items:center}
+.bt img,.ph{width:76px;height:76px;border-radius:14px;object-fit:cover;background:#fff;display:grid;place-items:center;font-size:2rem;flex:none}
+.bt b{font:700 1.2rem Outfit,sans-serif}.r strong{font:800 1.2rem Outfit,sans-serif}
+.bz small{color:var(--muted)}.ad{margin-top:10px;font-size:.93rem;color:var(--muted)}
+.rv{border-top:1px solid #C6D6F5;margin-top:12px;padding-top:10px;font-size:.9rem}.rv p{color:var(--muted)}
+.card{border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:18px;background:#fff}
+.card h3{color:var(--blue);font-size:.95rem;margin-bottom:10px}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.num{background:var(--tint);border-radius:14px;padding:12px}.num small{display:block;color:var(--muted)}.num b{font:800 1.6rem Outfit,sans-serif;color:var(--blue-d)}
+.big{background:linear-gradient(135deg,#1A73E8,#174EA6);color:#fff;border-radius:22px;padding:22px;margin-top:18px;text-align:center}
+.big b{display:block;font:800 2.4rem/1.1 Outfit,sans-serif}.big p{opacity:.95}
+.spin{width:84px;height:84px;border-radius:50%;border:8px solid #E8EAED;border-top-color:var(--blue);margin:20px auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ck{list-style:none;padding:0;margin:22px auto 0;max-width:320px}
+.ck li{display:flex;gap:12px;align-items:center;padding:7px 0;opacity:.3;transition:.4s}
+.ck li::before{content:"✓";width:26px;height:26px;border-radius:50%;background:#E8EAED;color:#fff;display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
+.ck li.on{opacity:1}.ck li.on::before{background:var(--green)}
+.pk{display:flex;gap:14px;align-items:center;border:1.5px solid var(--line);border-radius:18px;padding:16px;margin-top:16px;cursor:pointer;position:relative;background:#fff;width:100%;text-align:left;font:inherit}
+.pk.on{border-color:var(--blue);background:var(--tint)}
+.pk .q{font:800 1.5rem Outfit,sans-serif;color:var(--blue-d);min-width:48px}
+.pk b{font:800 1.25rem Outfit,sans-serif;color:var(--blue-d)}.pk small{display:block;color:var(--muted)}
+.pk .tg{position:absolute;top:-12px;left:14px;background:var(--green);color:#fff;font-size:.78rem;font-weight:700;padding:3px 12px;border-radius:999px}
+.sm{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);gap:14px}.sm span{color:var(--muted)}.sm b{text-align:right}
+.rkc{background:#fff;border-radius:22px;padding:12px;margin-top:22px;box-shadow:0 12px 30px -24px rgba(32,33,36,.5);border:1px solid var(--line)}
+.rks{display:flex;align-items:center;gap:10px;background:#F4F5F7;border-radius:999px;padding:13px 16px;font-size:.98rem;color:var(--ink)}
+.rks svg{width:18px;height:18px;flex:none;stroke:var(--muted)}
+.rks span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rks em{font-style:normal;font-size:.68rem;font-weight:800;letter-spacing:.08em;color:var(--muted)}
+.rk{position:relative;margin-top:12px}
+.rkr{position:absolute;left:0;right:0;top:0;height:88px;display:flex;align-items:center;gap:12px;padding:0 12px;background:#fff;border:1px solid var(--line);border-radius:14px;transition:transform .8s cubic-bezier(.3,.8,.2,1),border-color .4s,box-shadow .4s}
+.rkr .ico{width:48px;height:48px;border-radius:12px;background:#F1F3F4;display:grid;place-items:center;flex:none;transition:background .4s}
+.rkr .ico svg{width:24px;height:24px;stroke:#5F6368;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rkr .tx{min-width:0;flex:1;line-height:1.35}
+.rkr .tx>*{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkr .nm{font:700 1.02rem Figtree,sans-serif;color:var(--ink)}
+.rkr .ln1{font-size:.8rem;color:var(--muted)}
+.rkr .ln1 b{color:var(--ink)}
+.rkr .rs{background:linear-gradient(90deg,var(--star) var(--p,100%),#DADCE0 var(--p,100%));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:1px}
+.rkr .ln2{font-size:.8rem;color:var(--muted)}
+.rkr .op{color:var(--green)}
+.rkr.me{z-index:2;border:1.5px solid var(--blue)}
+.rkr.me .ico{background:var(--blue)}
+.rkr.me .ico svg{stroke:#fff}
+.rkr.me.top{border-color:var(--green);box-shadow:0 14px 28px -16px rgba(24,128,56,.6)}
+.rkmsg{text-align:center;color:var(--green);font-weight:700;margin-top:12px;opacity:0;transition:opacity .6s;min-height:1.4em}
+.rkmsg.on{opacity:1}
+.hw{display:grid;gap:12px;margin-top:20px}
+.hwc{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px;min-height:126px}
+.hwi{width:88px;height:106px;border-radius:12px;overflow:hidden;flex:none}
+.hwi svg{width:100%;height:100%;display:block}
+.hwn{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font:800 .85rem Outfit,sans-serif;display:grid;place-items:center;flex:none}
+.hwc p{font:700 1.02rem/1.3 Figtree,sans-serif;color:var(--ink)}
+@media (min-width:860px){
+  body{background:#F4F5F7}
+  .wrap{max-width:540px}
+  .hd{background:#F4F5F7;padding-top:12px;padding-bottom:10px;max-width:none;border-bottom:0}
+  h1{font-size:2rem}
+  #app{padding-bottom:30px}
+  .opts{gap:10px;margin-top:18px}
+  .opt{padding:15px 18px;font-size:1rem}
+  .btn{margin-top:16px;padding:16px;background:var(--blue);box-shadow:0 10px 22px -12px var(--blue)}
+  .btn.alt{background:#fff;color:var(--blue);border-color:var(--blue)}
+  .card,.bz,.in{background:#fff}
+  label{margin-top:14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:12px;margin:12px 0 16px">
+    <button id="bk" aria-label="Voltar" style="background:none;border:none;font-size:1.4rem;color:var(--muted);cursor:pointer;padding:0 4px;line-height:1" hidden>←</button>
+    <div style="flex:1;height:5px;background:#E2E8F0;border-radius:999px;overflow:hidden">
+      <div id="prog_fill" style="height:100%;width:10%;background:var(--blue);border-radius:999px;transition:width .4s ease"></div>
+    </div>
+  </div>
+  <div id="top_chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px"></div>
+  <main id="app"></main>
+</div>
+<div id="gdiv" hidden></div>
+
+<script>
+/* ===== CONFIGURAÇÃO ===== */
+var CFG={
+  zap:"5511999999999",
+  mapsKey:"",
+  checkout:"",
+  conv:0.08,
+  packs:[{q:1,u:89.99},{q:2,u:79.99,tag:"Mais escolhido · Frete Grátis"},{q:3,u:69.99,tag:"Melhor custo · Frete Grátis"}]
+};
+var S={tipo:"",biz:null,meta:0,un:0,cli:0,fun:0,pack:1,nome:"",email:"",tel:"",cpf:"",cep:"",rua:"",num:"",comp:"",bairro:"",cidade:"",uf:"",usou_end_negocio:false,frete:"padrao"};
+var $=function(s){return document.querySelector(s)},app=$("#app"),cur="",hist=[];
+var brl=function(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var stars=function(r){var n=Math.round(r||0);return "★".repeat(n)+"☆".repeat(5-n)};
+var n1=function(n){return String(n).replace(".",",")};
+
+var PCT={rank:8,biz:18,meta:28,un:38,cli:48,fun:56,calc:65,pot:74,dep:80,proj:86,contato:90,end_confirm:94,end:94,pacote:96,frete:98,resumo:100};
+
+function go(n,back){if(!back&&cur&&cur!=="calc")hist.push(cur);cur=n;render()}
+function backF(){if(hist.length){cur=hist.pop();render()}}
+function render(){
+  var pFill=document.getElementById("prog_fill");
+  if(pFill){
+    pFill.style.width=(PCT[cur]||10)+"%";
+  }
+
+  var topChips=document.getElementById("top_chips");
+  if(topChips){
+    var chipsHtml="";
+    var chipStyle='background:#fff;border:1px solid #DADCE0;border-radius:999px;padding:5px 13px;font-size:.82rem;font-weight:600;color:#202124;display:inline-flex;align-items:center;white-space:nowrap';
+    if(S.tipo){
+      chipsHtml+='<span style="'+chipStyle+'">'+esc(S.tipo)+'</span>';
+    }
+    if(S.cli){
+      var cliItem=L.cli.filter(function(x){return x[1]===S.cli;})[0];
+      var cliText=cliItem?cliItem[0]+"/dia":"Até 10 clientes/dia";
+      chipsHtml+='<span style="'+chipStyle+'">'+esc(cliText)+'</span>';
+    }
+    if(S.biz&&S.biz.name){
+      chipsHtml+='<span style="'+chipStyle+'">'+esc(S.biz.name)+'</span>';
+    }
+    if(S.pack&&(cur==="frete"||cur==="resumo")){
+      chipsHtml+='<span style="'+chipStyle+'">'+S.pack+' '+(S.pack>1?"displays":"display")+'</span>';
+    }
+    topChips.innerHTML=chipsHtml;
+    topChips.style.display=chipsHtml?"flex":"none";
+  }
+
+  $("#bk").hidden=!(hist.length&&cur!=="calc"&&cur!=="intro");
+  app.classList.remove("step");void app.offsetWidth;app.classList.add("step");
+  app.innerHTML=V[cur]();if(B[cur])B[cur]();window.scrollTo(0,0);
+}
+$("#bk").onclick=backF;
+
+function optsV(t,s,l){return "<h1>"+t+"</h1>"+(s?'<p class="sub">'+s+"</p>":"")+'<div class="opts">'+l.map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o[0]+"</button>"}).join("")+"</div>"}
+function optsB(l,key,next){document.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){b.classList.add("on");S[key]=l[b.dataset.i][1];setTimeout(function(){go(next)},260)}})}
+var L={
+  un:[["1 unidade",1],["2 a 3 unidades",2.5],["4 a 9 unidades",6],["10 ou mais unidades",12]],
+  cli:[["Até 10 clientes",8],["11 a 50 clientes",30],["51 a 100 clientes",75],["101 a 300 clientes",200],["Mais de 300 clientes",400]],
+  fun:[["Só eu",1],["2 a 5 funcionários",3],["6 a 15 funcionários",10],["16 a 50 funcionários",30],["Mais de 50 funcionários",60]]
+};
+function metaList(){var t=S.biz.total,l=(S.biz.known===false?[500,1000,2000,5000]:[100,250,500,1000,2000,5000,10000]).filter(function(x){return x>t*1.2}).slice(0,4);
+  if(!l.length)l=[1,2,3,5].map(function(m){return Math.ceil(t*(1+m)/1000)*1000});
+  return l.map(function(x){return [x.toLocaleString("pt-BR")+" avaliações",x]})}
+function bizCard(b){
+  return '<div class="bz"><div class="bt">'+(b.photo?'<img src="'+esc(b.photo)+'" alt="">':'<div class="ph">🏪</div>')+
+  '<div><b>'+esc(b.name)+'</b><div class="r"><strong>'+(b.rating?n1(b.rating):"–")+'</strong> <span class="stars">'+stars(b.rating)+'</span></div><small>'+b.total+' avaliações</small></div></div>'+
+  (b.addr?'<p class="ad">📍 '+esc(b.addr)+'</p>':"")+(b.tel?'<p class="ad">📞 '+esc(b.tel)+'</p>':"")+
+  (b.reviews||[]).map(function(r){return '<div class="rv"><span class="stars">'+stars(r.s)+'</span> <b>'+esc(r.a)+'</b> <small>'+esc(r.w)+'</small><p>'+esc((r.t||"").slice(0,110))+'…</p></div>'}).join("")+'</div>'}
+function rec(){return S.un>=3||S.fun>=10||S.cli>=75?3:S.un>=2||S.fun>=3?2:1}
+function calc(){
+  var falta=Math.max(0,S.meta-S.biz.total),mes=Math.max(5,Math.round(S.cli*26*CFG.conv)),m=Math.min(24,Math.max(1,Math.ceil(falta/mes)));
+  var nota=S.meta?((S.biz.rating*S.biz.total)+5*falta)/S.meta:S.biz.rating;
+  return {falta:falta,mes:mes,m:m,nota:Math.min(5,nota)}}
+function mask(el,f){el.oninput=function(){var d=el.value.replace(/\D/g,"");el.value=f(d);el.dispatchEvent(new Event("chk"))}}
+var mTel=function(d){d=d.slice(0,11);return d.length>6?"("+d.slice(0,2)+") "+d.slice(2,7)+"-"+d.slice(7):d.length>2?"("+d.slice(0,2)+") "+d.slice(2):d};
+var mCep=function(d){d=d.slice(0,8);return d.length>5?d.slice(0,5)+"-"+d.slice(5):d};
+var mCpfCnpj=function(d){d=d.slice(0,14);return d.length<=11?(d.length>9?d.slice(0,3)+"."+d.slice(3,6)+"."+d.slice(6,9)+"-"+d.slice(9):d.length>6?d.slice(0,3)+"."+d.slice(3,6)+"."+d.slice(6):d.length>3?d.slice(0,3)+"."+d.slice(3):d):(d.length>12?d.slice(0,2)+"."+d.slice(2,5)+"."+d.slice(5,8)+"/"+d.slice(8,12)+"-"+d.slice(12):d.length>8?d.slice(0,2)+"."+d.slice(2,5)+"."+d.slice(5,8)+"/"+d.slice(8):d.length>5?d.slice(0,2)+"."+d.slice(2,5)+"."+d.slice(5):d.length>2?d.slice(0,2)+"."+d.slice(2):d)};
+var mCardNum=function(d){d=d.replace(/\D/g,"").slice(0,16);return d.replace(/(\d{4})(?=\d)/g,"$1 ")};
+var mCardExp=function(d){d=d.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d};
+var mCardCvv=function(d){return d.replace(/\D/g,"").slice(0,4)};
+
+function bindForm(ids,ok,btn){var f=function(){ids.forEach(function(i){S[i]=$("#"+i).value.trim()});$(btn).disabled=!ok()};
+  ids.forEach(function(i){var e=$("#"+i);e.value=S[i]||"";e.addEventListener("input",f);e.addEventListener("chk",f)});f()}
+
+function getFreteVal(pack, tipo){
+  tipo = tipo || "padrao";
+  if(pack >= 2){
+    return tipo === "prioritario" ? 14.90 : 0;
+  } else {
+    return tipo === "prioritario" ? 24.90 : 14.90;
+  }
+}
+function getFreteTxt(pack, tipo){
+  tipo = tipo || "padrao";
+  if(pack >= 2){
+    return tipo === "prioritario" ? "Prioritário (+ R$ 14,90)" : "Padrão (Grátis)";
+  } else {
+    return tipo === "prioritario" ? "Prioritário (R$ 24,90)" : "Padrão (R$ 14,90)";
+  }
+}
+
+var V={},B={};
+
+V.biz=function(){return '<h1>Qual é o nome do seu negócio no Google?</h1><p class="sub">Digite exatamente como está no Google Meu Negócio.</p><div class="search"><input id="q" class="in" placeholder="Digite o nome do seu negócio" autocomplete="off" aria-label="Nome do negócio"><div id="res"></div></div><div id="pick"></div>'};
+B.biz=function(){
+  var q=$("#q"),res=$("#res"),pick=$("#pick"),t;
+  function show(){res.innerHTML="";pick.innerHTML=bizCard(S.biz)+'<button class="btn" id="nx">Próximo →</button><button class="lnk" id="ch">Trocar negócio</button>';
+    $("#nx").onclick=function(){go("meta")};$("#ch").onclick=function(){S.biz=null;pick.innerHTML="";q.value="";q.focus()}}
+  if(S.biz){q.value=S.biz.name;show()}
+  q.oninput=function(){clearTimeout(t);t=setTimeout(function(){
+    var v=q.value.trim();pick.innerHTML="";if(v.length<3){res.innerHTML="";return}
+    res.innerHTML='<div style="padding:10px;color:var(--muted);text-align:center">🔍 Buscando empresas no Google...</div>';
+    fetch('/api/places/autocomplete?q='+encodeURIComponent(v))
+      .then(function(r){return r.json()})
+      .then(function(data){
+        var p=data.predictions||[];
+        if(!p.length){
+          res.innerHTML='<button class="res" data-m="1"><b>Usar “'+esc(v)+'”</b><small>Nenhuma empresa encontrada com este nome. Clique para continuar assim mesmo.</small></button>';
+          return;
+        }
+        res.innerHTML=p.slice(0,5).map(function(x){
+          return '<button class="res" data-id="'+esc(x.place_id)+'"><b>'+esc(x.main_text)+'</b><small>'+esc(x.secondary_text||"")+'</small></button>';
+        }).join("")+'<button class="res" data-m="1" style="opacity:.8;border-style:dashed"><b>Usar “'+esc(v)+'”</b><small>Não encontrou na lista? Clique aqui para continuar manualmente</small></button>';
+      })
+      .catch(function(err){
+        console.error("Erro na busca:",err);
+        res.innerHTML='<button class="res" data-m="1"><b>Usar “'+esc(v)+'”</b><small>Continuar com este nome</small></button>';
+      });
+  },280)};
+  res.onclick=function(e){var b=e.target.closest(".res");if(!b)return;
+    if(b.dataset.id){
+      res.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted)">🔍 Puxando dados e avaliações do Google...</div>';
+      fetch('/api/places/details?id='+encodeURIComponent(b.dataset.id))
+        .then(function(r){return r.json()})
+        .then(function(biz){
+          if(!biz||!biz.name){
+            res.innerHTML='<div style="color:var(--red);padding:10px">Não foi possível carregar os detalhes. Tente novamente ou use o modo manual.</div>';
+            return;
+          }
+          S.biz={
+            name:biz.name,
+            rating:biz.rating||0,
+            total:biz.total||0,
+            addr:biz.addr||'',
+            tel:biz.tel||'',
+            photo:biz.photo||'',
+            reviews:biz.reviews||[]
+          };
+          show();
+        })
+        .catch(function(err){
+          console.error("Erro nos detalhes:",err);
+          res.innerHTML='<div style="color:var(--red);padding:10px">Falha ao conectar com o Google. Clique abaixo para continuar manualmente.</div><button class="res" data-m="1"><b>Usar “'+esc(q.value.trim())+'”</b></button>';
+        });
+    }else{
+      S.biz={name:q.value.trim(),rating:0,total:0,known:false};
+      show();
+    }
+  };
+};
+
+V.meta=function(){var k=S.biz.known!==false,nm='<span style="color:var(--blue)">'+esc(S.biz.name)+"</span>";return optsV(k?"Hoje, o(a) "+nm+" tem "+S.biz.total+" avaliações no Google.":"Quantas avaliações você quer ter no Google, "+nm+"?",k?"Quantas avaliações você gostaria de alcançar?":"Escolha a sua meta.",metaList())};
+B.meta=function(){optsB(metaList(),"meta","un")};
+V.un=function(){return optsV("Quantas unidades o(a) <span style=\"color:var(--blue)\">"+esc(S.biz.name)+"</span> possui atualmente?","",L.un)};
+B.un=function(){optsB(L.un,"un","cli")};
+V.cli=function(){return optsV("Em média, quantos clientes seu negócio atende por dia?","Considere todas as suas unidades.",L.cli)};
+B.cli=function(){optsB(L.cli,"cli","fun")};
+V.fun=function(){return optsV("Quantos funcionários trabalham hoje no(a) <span style=\"color:var(--blue)\">"+esc(S.biz.name)+"</span>?","",L.fun)};
+B.fun=function(){optsB(L.fun,"fun","calc")};
+
+V.calc=function(){var l=["Avaliações atuais","Meta de avaliações","Número de unidades","Clientes atendidos por dia","Tamanho da equipe","Potencial de novas avaliações","Distância até a sua meta","Calculando prazo estimado"];
+  return '<div style="text-align:center"><div class="spin"></div><h1>Calculando o potencial da sua empresa…</h1><p class="sub">Isso leva apenas alguns segundos.</p></div><ul class="ck">'+l.map(function(x){return "<li>"+x+"</li>"}).join("")+"</ul>"};
+B.calc=function(){var li=document.querySelectorAll(".ck li"),i=0,t=setInterval(function(){if(cur!=="calc"){clearInterval(t);return}
+  if(i<li.length)li[i++].classList.add("on");else{clearInterval(t);go("pot")}},480)};
+
+V.pot=function(){
+  var c=calc();
+  var totalHoje=(S.biz&&typeof S.biz.total==="number")?S.biz.total:0;
+  var metaVal=S.meta||500;
+  var pct=Math.min(100,Math.max(4,Math.round((totalHoje/metaVal)*100)));
+
+  return '<h1>Seu potencial com a placa NFC</h1>'+
+    '<p class="sub">Veja até onde o seu negócio pode chegar no Google.</p>'+
+    '<div class="card" style="margin-top:22px">'+
+      '<h3>Seus números</h3>'+
+      '<div class="nums">'+
+        '<div class="num"><small>Avaliações hoje</small><b>'+totalHoje.toLocaleString("pt-BR")+'</b></div>'+
+        '<div class="num"><small>Sua meta</small><b>'+metaVal.toLocaleString("pt-BR")+'</b></div>'+
+        '<div class="num"><small>Novas por mês</small><b>~'+c.mes+'</b></div>'+
+        '<div class="num"><small>Faltam</small><b>'+c.falta.toLocaleString("pt-BR")+'</b></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card">'+
+      '<h3>Rumo à meta</h3>'+
+      '<div style="display:flex;justify-content:space-between;font-weight:700;font-size:.92rem;color:var(--muted);margin-bottom:8px">'+
+        '<span>Hoje: <b style="color:var(--ink)">'+totalHoje.toLocaleString("pt-BR")+'</b></span>'+
+        '<span style="color:var(--blue)">Meta: <b>'+metaVal.toLocaleString("pt-BR")+'</b></span>'+
+      '</div>'+
+      '<div style="height:12px;background:#E8EAED;border-radius:999px;overflow:hidden">'+
+        '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--blue),#188038);border-radius:999px"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="big">'+
+      '<p>Com a placa NFC, você pode chegar a</p>'+
+      '<b>'+metaVal.toLocaleString("pt-BR")+' avaliações</b>'+
+      '<p style="font-size:1.15rem;margin-top:6px;opacity:.95">em até <strong>'+c.m+' meses</strong>.</p>'+
+    '</div>'+
+    '<p class="sub" style="font-size:.86rem;margin:16px auto 0;text-align:center;line-height:1.45">'+
+      'Estimativa baseada em ~8% dos clientes avaliando (~'+c.mes+' novas avaliações por mês). Os resultados variam conforme o seu negócio.'+
+    '</p>'+
+    '<button class="btn" id="nx">Continuar</button>';
+};
+B.pot=function(){
+  $("#nx").onclick=function(){go("dep")};
+};
+
+V.dep=function(){
+  var items=[
+    {i:"R",n:"Rafael M.",c:"Dono de barbearia",t:"“Em poucas semanas as avaliações começaram a aparecer todo dia. O cliente só encosta o celular e pronto.”"},
+    {i:"C",n:"Camila S.",c:"Proprietária de restaurante",t:"“Antes eu precisava pedir para avaliar. Agora o cliente avalia sozinho, sem eu falar nada.”"},
+    {i:"A",n:"André L.",c:"Gestor de clínica",t:"“Simples de usar e a nota subiu. Os pacientes acharam prático, não precisam instalar nada.”"}
+  ];
+
+  return '<h1>Quem usa, recomenda</h1>'+
+    '<p class="sub">Veja o que donos de negócio dizem sobre a placa.</p>'+
+    '<div style="display:grid;gap:12px;margin-top:22px">'+
+      items.map(function(item){
+        return '<div class="card" style="margin-top:0;padding:18px">'+
+          '<div style="display:flex;align-items:center;gap:12px">'+
+            '<div style="width:44px;height:44px;border-radius:50%;background:var(--tint);color:var(--blue-d);display:grid;place-items:center;font:800 1.15rem Outfit,sans-serif;flex:none">'+item.i+'</div>'+
+            '<div style="flex:1">'+
+              '<b style="font:700 1.05rem Outfit,sans-serif;display:block">'+esc(item.n)+'</b>'+
+              '<small style="color:var(--muted);font-size:.85rem">'+esc(item.c)+'</small>'+
+            '</div>'+
+            '<div style="color:var(--star);letter-spacing:2px;font-size:.95rem">★★★★★</div>'+
+          '</div>'+
+          '<p style="margin-top:12px;color:var(--ink);font-size:.95rem;line-height:1.45;font-style:italic">'+esc(item.t)+'</p>'+
+        '</div>';
+      }).join("")+
+    '</div>'+
+    '<button class="btn" id="nx">Continuar</button>';
+};
+B.dep=function(){
+  $("#nx").onclick=function(){go("proj")};
+};
+
+V.proj=function(){var it=[['<svg viewBox="0 0 88 118" aria-hidden="true"><rect width="88" height="118" fill="#DCE6F7"/><rect y="94" width="88" height="24" fill="#C3D0E8"/><rect x="6" y="52" width="42" height="42" rx="8" fill="#1A73E8"/><path d="M20 66a8 8 0 0 1 0 12M26 62a14 14 0 0 1 0 20M32 58a20 20 0 0 1 0 28" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><g transform="rotate(10 62 50)"><rect x="40" y="10" width="40" height="76" rx="8" fill="#202124"/><rect x="43" y="14" width="34" height="68" rx="6" fill="#F4C7E3"/><rect x="48" y="20" width="8" height="8" rx="2" fill="#fff" opacity=".8"/><rect x="60" y="20" width="8" height="8" rx="2" fill="#fff" opacity=".8"/><rect x="48" y="33" width="8" height="8" rx="2" fill="#fff" opacity=".8"/><rect x="60" y="33" width="8" height="8" rx="2" fill="#fff" opacity=".8"/></g></svg>','Aproxime o celular da placa no balcão'],['<svg viewBox="0 0 88 118" aria-hidden="true"><rect width="88" height="118" fill="#DCE6F7"/><rect x="22" y="12" width="46" height="94" rx="10" fill="#202124"/><rect x="25" y="16" width="40" height="86" rx="8" fill="#fff"/><rect x="25" y="16" width="40" height="22" rx="8" fill="#1A73E8"/><rect x="25" y="30" width="40" height="8" fill="#1A73E8"/><circle cx="45" cy="46" r="8" fill="#E8F0FE" stroke="#fff" stroke-width="2"/><rect x="33" y="58" width="24" height="4" rx="2" fill="#202124"/><text x="45" y="73" text-anchor="middle" font-size="9" fill="#FBBC04">★★★★★</text><rect x="31" y="80" width="28" height="3" rx="1.5" fill="#DADCE0"/><rect x="31" y="87" width="20" height="3" rx="1.5" fill="#DADCE0"/></svg>','A página de avaliação do seu negócio abre sozinha'],['<svg viewBox="0 0 88 118" aria-hidden="true"><rect width="88" height="118" fill="#DCE6F7"/><rect x="22" y="12" width="46" height="94" rx="10" fill="#202124"/><rect x="25" y="16" width="40" height="86" rx="8" fill="#fff"/><text x="45" y="38" text-anchor="middle" font-size="8" font-weight="700" fill="#202124">Avalie</text><text x="45" y="54" text-anchor="middle" font-size="10" fill="#FBBC04">★★★★★</text><rect x="30" y="62" width="30" height="16" rx="4" fill="#F1F3F4"/><rect x="33" y="67" width="22" height="2.5" rx="1.2" fill="#9AA0A6"/><rect x="33" y="72" width="14" height="2.5" rx="1.2" fill="#9AA0A6"/><rect x="31" y="86" width="28" height="9" rx="4.5" fill="#1A73E8"/></svg>','O cliente dá a nota e, se quiser, escreve']];
+  return '<h1>É assim que o seu cliente vai avaliar</h1><div class="hw">'+it.map(function(x,i){return '<div class="hwc"><div class="hwi">'+x[0]+'</div><span class="hwn">'+(i+1)+'</span><p>'+x[1]+'</p></div>'}).join("")+'</div><p class="sub" style="font-size:.9rem">Funciona nos celulares atuais: é só aproximar. Não precisa de aplicativo.</p><button class="btn" id="nx">Continuar</button>'};
+B.proj=function(){$("#nx").onclick=function(){go("contato")}};
+
+V.contato=function(){return '<h1>Como podemos entrar em contato?</h1><p class="sub">Usamos esses dados para enviar o acompanhamento do pedido e emitir a nota fiscal.</p><label for="nome">Nome completo</label><input id="nome" class="in" autocomplete="name" placeholder="Seu nome completo"><label for="tel">WhatsApp</label><input id="tel" class="in" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999"><label for="cpf">CPF ou CNPJ</label><input id="cpf" class="in" inputmode="numeric" placeholder="000.000.000-00"><small style="color:var(--muted);font-size:.82rem;display:block;margin-top:6px;line-height:1.4">Exigido para emissão da nota fiscal e liberação imediata do Pix sem retrabalho.</small><button class="btn" id="nx" disabled>Próximo →</button>'};
+B.contato=function(){bindForm(["nome","tel","cpf"],function(){var raw=S.cpf.replace(/\D/g,"");return S.nome.length>1&&S.tel.replace(/\D/g,"").length>=10&&(raw.length===11||raw.length===14)},"#nx");mask($("#tel"),mTel);mask($("#cpf"),mCpfCnpj);$("#nx").onclick=function(){
+  if(S.biz&&S.biz.addr){go("end_confirm")}else{go("end")}
+}};
+
+V.end_confirm=function(){
+  var bizName=(S.biz&&S.biz.name)||"Seu negócio";
+  var bizAddr=(S.biz&&S.biz.addr)||"Endereço cadastrado no Google";
+
+  return '<h1>Qual é o endereço de entrega?</h1>'+
+    '<p class="sub">O display chega pelos Correios, já gravado e pronto pro balcão.</p>'+
+    '<div class="card" style="margin-top:24px;padding:20px;border-radius:20px">'+
+      '<div style="display:flex;align-items:flex-start;gap:14px">'+
+        '<div style="width:42px;height:42px;border-radius:12px;background:#F1F3F4;display:grid;place-items:center;flex:none">'+
+          '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#202124" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+            '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>'+
+            '<circle cx="12" cy="10" r="3"></circle>'+
+          '</svg>'+
+        '</div>'+
+        '<div style="flex:1">'+
+          '<b style="font:800 1.05rem Outfit,sans-serif;color:var(--ink);display:block">Entregar no endereço do negócio?</b>'+
+          '<div style="font:700 1.02rem Outfit,sans-serif;color:var(--ink);margin-top:8px">'+esc(bizName)+'</div>'+
+          '<div style="color:var(--muted);font-size:.92rem;margin-top:4px;line-height:1.4">'+esc(bizAddr)+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<button class="btn" id="bt_sim" style="margin-top:22px">Sim, entregar aqui</button>'+
+    '<button class="btn alt" id="bt_outro" style="margin-top:12px">Outro endereço</button>';
+};
+B.end_confirm=function(){
+  $("#bt_sim").onclick=function(){
+    S.usou_end_negocio=true;
+    go("pacote");
+  };
+  $("#bt_outro").onclick=function(){
+    S.usou_end_negocio=false;
+    go("end");
+  };
+};
+
+V.end=function(){return '<h1>'+esc(S.nome.split(" ")[0])+', onde você quer receber a sua placa?</h1><label for="cep">CEP</label><input id="cep" class="in" inputmode="numeric" placeholder="00000-000"><label for="rua">Rua</label><input id="rua" class="in"><div class="row2"><div><label for="num">Número</label><input id="num" class="in"></div><div><label for="comp">Complemento</label><input id="comp" class="in" placeholder="Apto, bloco…"></div></div><label for="bairro">Bairro</label><input id="bairro" class="in"><div class="row2"><div><label for="cidade">Cidade</label><input id="cidade" class="in"></div><div><label for="uf">Estado</label><input id="uf" class="in" maxlength="2"></div></div><button class="btn" id="nx" disabled>Continuar →</button>'};
+B.end=function(){bindForm(["cep","rua","num","comp","bairro","cidade","uf"],function(){return S.rua&&S.num&&S.cidade&&S.uf.length===2&&S.cep.replace(/\D/g,"").length===8},"#nx");
+  mask($("#cep"),mCep);
+  $("#cep").addEventListener("chk",function(){var d=$("#cep").value.replace(/\D/g,"");if(d.length!==8)return;
+    fetch("https://viacep.com.br/ws/"+d+"/json/").then(function(r){return r.json()}).then(function(j){if(j.erro)return;
+      $("#rua").value=j.logradouro||"";$("#bairro").value=j.bairro||"";$("#cidade").value=j.localidade||"";$("#uf").value=j.uf||"";$("#rua").dispatchEvent(new Event("input"))}).catch(function(){})});
+  $("#nx").onclick=function(){go("pacote")}};
+
+V.pacote=function(){var r=rec();return '<h1>'+esc(S.nome.split(" ")[0])+', escolha o seu pacote</h1><p class="sub">Quando atingirmos a capacidade de produção, a oferta é encerrada.</p>'+
+  CFG.packs.map(function(p){
+    var tg = p.q >= 2 ? (p.q === 2 ? "Mais escolhido · Frete Grátis" : "Melhor custo · Frete Grátis") : "";
+    var freteDica = p.q >= 2 ? " · Frete Grátis" : " · Frete R$ 14,90";
+    return '<button class="pk'+(S.pack===p.q?" on":"")+'" data-q="'+p.q+'">'+(tg?'<span class="tg">'+tg+'</span>':"")+'<span class="q">'+p.q+'x</span><span><b>'+brl(p.q*p.u)+'</b><small>'+(p.q>1?"Cada placa sai por "+brl(p.u)+freteDica:"Ideal para começar"+freteDica)+'</small></span></button>'
+  }).join("")+
+  '<button class="btn" id="nx">Continuar →</button>'};
+B.pacote=function(){var r=rec();if(S.pack===1&&r>1)S.pack=r;
+  document.querySelectorAll(".pk").forEach(function(b){b.classList.toggle("on",+b.dataset.q===S.pack);b.onclick=function(){S.pack=+b.dataset.q;document.querySelectorAll(".pk").forEach(function(x){x.classList.toggle("on",x===b)})}});
+  $("#nx").onclick=function(){go("frete")}};
+
+V.frete=function(){
+  var isFree = (S.pack >= 2);
+  var valPadrao = isFree ? "Grátis" : "R$ 14,90";
+  var valPrio = isFree ? "+ R$ 14,90" : "R$ 24,90";
+
+  return '<h1>Como você prefere receber?</h1>'+
+    (isFree ?
+      '<div style="margin-top:16px;padding:12px 16px;background:#E6F4EA;border:1px solid #A7F3D0;border-radius:16px;display:flex;align-items:center;gap:10px;color:#0D5C26;font-size:.9rem;font-weight:700">'+
+        '<span>🎉</span><span>Parabéns! Você ganhou <b>Frete Grátis</b> no pacote de '+S.pack+' placas.</span>'+
+      '</div>'
+      :
+      '<div style="margin-top:16px;padding:14px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;display:flex;align-items:center;gap:10px;color:#92400E;font-size:.9rem">'+
+        '<span style="font-size:1.2rem">💡</span>'+
+        '<span style="line-height:1.4">Leve <b>2 placas</b> e ganhe <b>Frete Grátis</b>! <button id="bt_mudar_2x" type="button" style="background:none;border:none;color:#B45309;font-weight:800;text-decoration:underline;cursor:pointer;padding:0">Mudar para 2 placas</button></span>'+
+      '</div>'
+    )+
+    '<div id="opt_padrao" style="border:2px solid var(--blue);border-radius:20px;padding:18px 20px;margin-top:16px;background:#fff;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.15s">'+
+      '<div>'+
+        '<b style="font:800 1.15rem Outfit,sans-serif;color:var(--ink);display:block">Padrão (Correios)</b>'+
+        '<span style="color:var(--muted);font-size:.95rem;margin-top:3px;display:block">3 a 10 dias úteis</span>'+
+      '</div>'+
+      '<b style="font:800 1.15rem Outfit,sans-serif;color:'+(isFree?'var(--green)':'var(--ink)')+'">'+valPadrao+'</b>'+
+    '</div>'+
+    '<div id="opt_prio" style="border:1.5px solid var(--line);border-radius:20px;padding:18px 20px;margin-top:12px;background:#fff;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.15s">'+
+      '<div style="padding-right:12px">'+
+        '<b style="font:800 1.15rem Outfit,sans-serif;color:var(--ink);display:block">Prioritário (Fura-fila)</b>'+
+        '<span style="color:var(--muted);font-size:.9rem;margin-top:3px;display:block;line-height:1.35">Seu pedido é preparado e postado na frente</span>'+
+      '</div>'+
+      '<b style="font:800 1.15rem Outfit,sans-serif;color:var(--ink);white-space:nowrap">'+valPrio+'</b>'+
+    '</div>'+
+    '<p class="sub" style="font-size:.92rem;margin-top:14px;color:var(--muted)">Regiões mais distantes podem levar um pouco mais.</p>'+
+    '<button class="btn" id="nx" style="margin-top:24px">Continuar</button>';
+};
+B.frete=function(){
+  var optPadrao=document.getElementById("opt_padrao");
+  var optPrio=document.getElementById("opt_prio");
+  var btMudar2x=document.getElementById("bt_mudar_2x");
+  if(!S.frete) S.frete="padrao";
+
+  if(btMudar2x){
+    btMudar2x.onclick=function(){
+      S.pack=2;
+      render();
+    };
+  }
+
+  function upd(){
+    if(S.frete==="padrao"){
+      optPadrao.style.border="2px solid var(--blue)";
+      optPrio.style.border="1.5px solid var(--line)";
+    }else{
+      optPrio.style.border="2px solid var(--blue)";
+      optPadrao.style.border="1.5px solid var(--line)";
+    }
+  }
+  upd();
+
+  optPadrao.onclick=function(){
+    S.frete="padrao";
+    upd();
+  };
+  optPrio.onclick=function(){
+    S.frete="prioritario";
+    upd();
+  };
+  $("#nx").onclick=function(){
+    go("resumo");
+  };
+};
+
+V.resumo=function(){
+  var p=CFG.packs.filter(function(x){return x.q===S.pack})[0]||CFG.packs[0];
+  var endTxt=S.usou_end_negocio?(S.biz.addr||"Endereço do negócio"):(S.rua+", "+S.num+" – "+S.cidade+"/"+S.uf);
+  var bizName=(S.biz&&S.biz.name)||"Seu negócio";
+  var dispText=S.pack+" "+(S.pack>1?"displays":"display");
+  var freteVal=getFreteVal(S.pack, S.frete);
+  var totalNum=(S.pack*p.u)+freteVal;
+  var totalVal=brl(totalNum);
+  var freteTxt=getFreteTxt(S.pack, S.frete);
+
+  return ''+
+    '<h1>Tudo pronto pra '+esc(bizName)+'</h1>'+
+    '<p class="sub" style="font-size:1.02rem;margin-top:10px;line-height:1.45;color:var(--muted)">Confere e escolhe como pagar: depois do pagamento, a gente grava o microchip com o link do seu negócio e manda.</p>'+
+
+    '<div class="card" style="margin-top:22px;padding:18px 20px;border-radius:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div>'+
+          '<small style="color:var(--muted);font-size:.85rem;display:block">Seu pedido</small>'+
+          '<b style="font:800 1.25rem Outfit,sans-serif">'+esc(dispText)+'</b>'+
+        '</div>'+
+        '<div style="text-align:right">'+
+          '<b style="font:800 1.6rem Outfit,sans-serif;color:var(--ink)">'+totalVal+'</b>'+
+          '<button type="button" id="tg_det" style="display:block;background:none;border:none;color:var(--ink);text-decoration:underline;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto;margin-top:2px">Ver detalhes</button>'+
+        '</div>'+
+      '</div>'+
+      '<div id="bx_det" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:.9rem">'+
+        '<div class="sm"><span>Negócio</span><b>'+esc(bizName)+'</b></div>'+
+        '<div class="sm"><span>Entrega</span><b>'+esc(endTxt)+'</b></div>'+
+        '<div class="sm"><span>WhatsApp</span><b>'+esc(S.tel)+'</b></div>'+
+        '<div class="sm"><span>Placas</span><b>'+S.pack+'x ('+brl(p.u)+' cada)</b></div>'+
+        '<div class="sm"><span>Frete</span><b style="'+(freteVal>0?"":"color:var(--green)")+'">'+esc(freteTxt)+'</b></div>'+
+      '</div>'+
+    '</div>'+
+
+    '<h2 style="font-size:1.2rem;font-weight:800;margin-top:26px">Como você quer pagar?</h2>'+
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">'+
+      '<div id="opt_pix" class="opt-pay" style="cursor:pointer;border:2px solid #00B5A2;background:#F0FDF9;border-radius:20px;padding:16px;transition:.15s">'+
+        '<div style="width:38px;height:38px;border-radius:12px;background:#00B5A2;display:grid;place-items:center;color:#fff;margin-bottom:10px">'+
+          '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 12l10 10 10-10L12 2z"></path><path d="M12 8l-4 4 4 4 4-4-4-4z"></path></svg>'+
+        '</div>'+
+        '<b style="font:800 1.15rem Outfit,sans-serif;color:var(--ink);display:block">Pix</b>'+
+        '<span style="display:inline-block;margin-top:6px;background:#E6F4EA;color:#0D5C26;font-size:.76rem;font-weight:800;padding:3px 8px;border-radius:6px">Aprovação na hora</span>'+
+      '</div>'+
+
+      '<div id="opt_card" class="opt-pay" style="cursor:pointer;border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:16px;transition:.15s">'+
+        '<div style="width:38px;height:38px;border-radius:12px;background:#F1F3F4;display:grid;place-items:center;color:#202124;margin-bottom:10px">'+
+          '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>'+
+        '</div>'+
+        '<b style="font:800 1.15rem Outfit,sans-serif;color:var(--ink);display:block">Cartão de crédito</b>'+
+        '<small style="color:var(--muted);font-size:.85rem;display:block;margin-top:2px">Em até 12x</small>'+
+        '<div style="display:flex;gap:4px;margin-top:8px">'+
+          '<span style="font-size:.65rem;font-weight:800;border:1px solid #CBD5E1;border-radius:4px;padding:1px 3px;color:#1A73E8">VISA</span>'+
+          '<span style="font-size:.65rem;font-weight:800;border:1px solid #CBD5E1;border-radius:4px;padding:1px 3px;color:#D93025">MC</span>'+
+          '<span style="font-size:.65rem;font-weight:800;border:1px solid #CBD5E1;border-radius:4px;padding:1px 3px;color:#202124">ELO</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div id="card_fields" style="display:none;margin-top:16px;padding:20px;border:1.5px solid var(--line);border-radius:20px;background:#F8FAFC">'+
+      '<label for="card_num" style="font-weight:700;font-size:.88rem;color:var(--ink)">Número do cartão</label>'+
+      '<input id="card_num" class="in" inputmode="numeric" placeholder="0000 0000 0000 0000" autocomplete="cc-number">'+
+      '<label for="card_name" style="font-weight:700;font-size:.88rem;color:var(--ink)">Nome impresso no cartão</label>'+
+      '<input id="card_name" class="in" placeholder="Como impresso no cartão" autocomplete="cc-name" style="text-transform:uppercase">'+
+      '<div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+        '<div>'+
+          '<label for="card_exp" style="font-weight:700;font-size:.88rem;color:var(--ink)">Validade</label>'+
+          '<input id="card_exp" class="in" inputmode="numeric" placeholder="MM/AA" autocomplete="cc-exp">'+
+        '</div>'+
+        '<div>'+
+          '<label for="card_cvv" style="font-weight:700;font-size:.88rem;color:var(--ink)">CVV</label>'+
+          '<input id="card_cvv" class="in" inputmode="numeric" placeholder="123" maxlength="4" autocomplete="cc-csc">'+
+        '</div>'+
+      '</div>'+
+      '<label for="card_inst" style="font-weight:700;font-size:.88rem;color:var(--ink)">Parcelamento</label>'+
+      '<select id="card_inst" class="in" style="background:#fff;font-size:.92rem;font-weight:600">'+
+        [1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){
+          var pVal = (totalNum / n).toFixed(2).replace(".",",");
+          return '<option value="'+n+'">'+n+'x de R$ '+pVal+(n===1?' (à vista)':' sem juros')+'</option>';
+        }).join("")+
+      '</select>'+
+    '</div>'+
+
+    '<button class="btn" id="bt_action" style="margin-top:20px;font-size:1.1rem">Pagar com Pix no Asaas →</button>'+
+    '<p id="asaas_loading" style="display:none;text-align:center;color:var(--muted);font-weight:600;margin-top:12px;font-size:.92rem">Gerando seu link oficial e seguro do Asaas...</p>'+
+
+    '<div style="display:flex;justify-content:space-around;gap:8px;margin-top:20px;color:var(--muted);font-size:.82rem;font-weight:600;text-align:center">'+
+      '<span>🔒 Pagamento seguro</span>'+
+      '<span>🛡️ Garantia de 90 dias</span>'+
+      '<span>↩️ 7 dias pra devolver</span>'+
+    '</div>'+
+
+    '<div style="margin-top:28px;border-top:1px solid var(--line)">'+
+      '<details style="border:none;padding:16px 0;border-bottom:1px solid var(--line);margin:0">'+
+        '<summary style="font-weight:700;font-size:1.02rem;color:var(--ink);cursor:pointer">Tem mensalidade?</summary>'+
+        '<p style="color:var(--muted);font-size:.92rem;margin-top:8px;line-height:1.45">Não! O pagamento é único. A placa é sua para sempre, sem nenhuma mensalidade, assinatura ou taxa oculta.</p>'+
+      '</details>'+
+      '<details style="border:none;padding:16px 0;border-bottom:1px solid var(--line);margin:0">'+
+        '<summary style="font-weight:700;font-size:1.02rem;color:var(--ink);cursor:pointer">Funciona em qualquer celular?</summary>'+
+        '<p style="color:var(--muted);font-size:.92rem;margin-top:8px;line-height:1.45">Sim! Funciona em qualquer celular moderno (iPhone e Android) com tecnologia NFC de aproximação, e também conta com QR Code de backup gravado.</p>'+
+      '</details>'+
+      '<details style="border:none;padding:16px 0;border-bottom:1px solid var(--line);margin:0">'+
+        '<summary style="font-weight:700;font-size:1.02rem;color:var(--ink);cursor:pointer">Como chega?</summary>'+
+        '<p style="color:var(--muted);font-size:.92rem;margin-top:8px;line-height:1.45">O display chega pelos Correios diretamente no endereço informado, já configurado e gravado com o chip NFC com o link oficial da sua empresa no Google, pronto para colocar no balcão e começar a receber 5 estrelas.</p>'+
+      '</details>'+
+    '</div>';
+};
+
+B.resumo=function(){
+  var payMethod="pix";
+  var optPix=document.getElementById("opt_pix");
+  var optCard=document.getElementById("opt_card");
+  var btAction=document.getElementById("bt_action");
+  var cardFields=document.getElementById("card_fields");
+  var tgDet=document.getElementById("tg_det");
+  var bxDet=document.getElementById("bx_det");
+
+  var p=CFG.packs.filter(function(x){return x.q===S.pack})[0]||CFG.packs[0];
+  var freteVal=getFreteVal(S.pack, S.frete);
+  var freteTxt=getFreteTxt(S.pack, S.frete);
+  var totalNum=(S.pack*p.u)+freteVal;
+  var totalVal=brl(totalNum);
+
+  if(tgDet&&bxDet){
+    tgDet.onclick=function(){
+      var isHidden=bxDet.style.display==="none";
+      bxDet.style.display=isHidden?"block":"none";
+      tgDet.textContent=isHidden?"Ocultar detalhes":"Ver detalhes";
+    };
+  }
+
+  function setPay(m){
+    payMethod=m;
+    if(m==="pix"){
+      optPix.style.border="2px solid #00B5A2";
+      optPix.style.background="#F0FDF9";
+      optCard.style.border="1.5px solid var(--line)";
+      optCard.style.background="#fff";
+      if(cardFields) cardFields.style.display="none";
+      btAction.textContent="Pagar com Pix no Asaas →";
+    }else{
+      optCard.style.border="2px solid var(--blue)";
+      optCard.style.background="var(--tint)";
+      optPix.style.border="1.5px solid var(--line)";
+      optPix.style.background="#fff";
+      if(cardFields) cardFields.style.display="block";
+      btAction.textContent="Pagar "+totalVal+" no Cartão →";
+    }
+  }
+
+  if($("#card_num")) mask($("#card_num"), mCardNum);
+  if($("#card_exp")) mask($("#card_exp"), mCardExp);
+  if($("#card_cvv")) mask($("#card_cvv"), mCardCvv);
+
+  if(optPix)optPix.onclick=function(){setPay("pix")};
+  if(optCard)optCard.onclick=function(){setPay("card")};
+
+  if(btAction){
+    btAction.onclick=function(){
+      var userCheckout=(window.APP_CONFIG&&window.APP_CONFIG.checkout)?window.APP_CONFIG.checkout.trim():(CFG.checkout||"");
+      if(userCheckout){
+        try {
+          if (window.top && window.top !== window) {
+            window.top.location.href=userCheckout;
+          } else {
+            window.location.href=userCheckout;
+          }
+        } catch(e) {
+          window.location.href=userCheckout;
+        }
+        return;
+      }
+
+      var payload={
+        bizName:(S.biz&&S.biz.name)||"Seu Negócio",
+        bizRating:S.biz ? S.biz.rating : null,
+        bizTotal:S.biz ? S.biz.total : null,
+        tipoNegocio:S.tipo||"",
+        metaVal:S.meta||0,
+        unidades:S.un||1,
+        clientesDia:S.cli||0,
+        funcionarios:S.fun||1,
+        packCount:S.pack||1,
+        totalValue:totalNum,
+        billingType:payMethod==="pix"?"PIX":"CREDIT_CARD",
+        customerName:S.nome||"",
+        customerPhone:S.tel||"",
+        customerCpfCnpj:S.cpf||"",
+        usouEndNegocio:!!S.usou_end_negocio,
+        address:S.usou_end_negocio?{full:(S.biz&&S.biz.addr)||""}:{cep:S.cep,rua:S.rua,num:S.num,comp:S.comp,bairro:S.bairro,cidade:S.cidade,uf:S.uf},
+        freteTipo:S.frete||"padrao",
+        freteVal:freteVal,
+        freteNome:freteTxt
+      };
+
+      if(payMethod==="card"){
+        var cardNum = $("#card_num") ? $("#card_num").value.replace(/\D/g,"") : "";
+        var cardName = $("#card_name") ? $("#card_name").value.trim() : "";
+        var cardExp = $("#card_exp") ? $("#card_exp").value.replace(/\D/g,"") : "";
+        var cardCvv = $("#card_cvv") ? $("#card_cvv").value.trim() : "";
+        var cardInst = $("#card_inst") ? $("#card_inst").value : "1";
+
+        if(cardNum.length < 15){
+          alert("Por favor, digite o número completo do cartão.");
+          $("#card_num").focus();
+          return;
+        }
+        if(cardName.length < 3){
+          alert("Por favor, digite o nome impresso no cartão.");
+          $("#card_name").focus();
+          return;
+        }
+        if(cardExp.length !== 4){
+          alert("Por favor, digite a validade (MM/AA).");
+          $("#card_exp").focus();
+          return;
+        }
+        if(cardCvv.length < 3){
+          alert("Por favor, digite o código CVV de segurança.");
+          $("#card_cvv").focus();
+          return;
+        }
+
+        payload.creditCard = {
+          holderName: cardName,
+          number: cardNum,
+          expiryMonth: cardExp.slice(0,2),
+          expiryYear: cardExp.slice(2,4),
+          ccv: cardCvv
+        };
+        payload.installmentCount = cardInst;
+      }
+
+      var loadingEl=document.getElementById("asaas_loading");
+      if(loadingEl){
+        loadingEl.style.display="block";
+        loadingEl.style.color="var(--muted)";
+        loadingEl.textContent=payMethod==="pix"?"Gerando seu código Pix seguro do Asaas...":"Processando pagamento com a operadora do cartão...";
+      }
+      btAction.disabled=true;
+      btAction.style.opacity="0.6";
+      btAction.textContent="Processando no Asaas...";
+
+      fetch("/api/asaas/create-payment",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      })
+      .then(function(r){return r.json()})
+      .then(function(res){
+        if(res.success){
+          if(res.type==='credit_card'){
+            var appEl=document.getElementById("app");
+            appEl.innerHTML='<div style="margin-top:10px;padding:32px 20px;background:#fff;border:2px solid #00B5A2;border-radius:24px;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,0.06)">'+
+              '<div style="width:64px;height:64px;border-radius:50%;background:#E6F4EA;color:#0D5C26;display:grid;place-items:center;font-size:2.2rem;margin:0 auto 16px">✓</div>'+
+              '<h2 style="font-size:1.5rem;font-weight:800;color:var(--ink)">Pagamento Confirmado!</h2>'+
+              '<p style="color:var(--muted);font-size:.95rem;margin-top:8px;line-height:1.45">Seu pagamento no cartão de crédito foi processado e aprovado com sucesso.</p>'+
+              '<div style="margin-top:20px;padding:18px;background:#F8FAFC;border-radius:18px;text-align:left;font-size:.92rem">'+
+                '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Empresa:</span><b style="color:var(--ink)">'+esc((S.biz&&S.biz.name)||"Seu Negócio")+'</b></div>'+
+                '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Displays:</span><b style="color:var(--ink)">'+S.pack+' '+(S.pack>1?"displays":"display")+'</b></div>'+
+                '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Total pago:</span><b style="color:var(--ink)">'+totalVal+'</b></div>'+
+                '<div style="display:flex;justify-content:space-between"><span>Status:</span><b style="color:#0D5C26">Aprovado no Cartão</b></div>'+
+              '</div>'+
+              '<p style="color:var(--muted);font-size:.88rem;margin-top:20px;line-height:1.4">Nossa equipe já recebeu seu pedido e está gravando os chips NFC com as avaliações da sua empresa para envio.</p>'+
+            '</div>';
+            window.scrollTo(0,0);
+            return;
+          }
+
+          if(res.pix && res.pix.copyPaste){
+            var qrImgHtml = res.pix.qrCodeImage ? '<div style="margin:16px auto;padding:12px;background:#fff;border:1px solid #CBD5E1;border-radius:18px;display:inline-block"><img src="'+res.pix.qrCodeImage+'" alt="QR Code Pix" style="width:210px;height:210px;display:block"></div>' : '';
+            var modalHtml='<div style="margin-top:10px;padding:26px 20px;background:#fff;border:2px solid #00B5A2;border-radius:24px;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,0.06)">'+
+              '<div style="display:inline-flex;align-items:center;gap:6px;background:#E6F4EA;color:#0D5C26;padding:6px 16px;border-radius:999px;font-size:.85rem;font-weight:800">✓ Pix pronto para pagamento</div>'+
+              '<h2 style="font-size:1.45rem;font-weight:800;margin-top:16px;color:var(--ink)">Pague com Pix instantâneo</h2>'+
+              '<p style="color:var(--muted);font-size:.92rem;margin-top:6px;line-height:1.4">Abra o aplicativo do seu banco, copie o código abaixo ou aponte a câmera pro QR Code:</p>'+
+              qrImgHtml+
+              '<div style="margin-top:14px">'+
+                '<button type="button" id="bt_copiar_pix" class="btn" style="background:#00B5A2;box-shadow:none;font-size:1.05rem;padding:15px">📋 Copiar Código Pix</button>'+
+                '<input id="pix_code_val" type="text" value="'+esc(res.pix.copyPaste)+'" readonly style="position:absolute;left:-9999px">'+
+                '<p id="pix_copied_msg" style="display:none;color:#0D5C26;font-weight:800;font-size:.92rem;margin-top:10px">✓ Chave Pix copiada com sucesso!</p>'+
+              '</div>'+
+              '<div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">'+
+                '<button id="bt_mudar_cartao" type="button" style="background:none;border:none;color:var(--blue);font-size:.92rem;font-weight:700;text-decoration:underline;cursor:pointer">Preferir pagar com cartão de crédito</button>'+
+                '<small style="color:var(--muted);font-size:.8rem">A confirmação é automática em poucos segundos.</small>'+
+              '</div>'+
+            '</div>';
+
+            var appEl=document.getElementById("app");
+            appEl.innerHTML=modalHtml;
+            window.scrollTo(0,0);
+
+            var btCopiar=document.getElementById("bt_copiar_pix");
+            var inputVal=document.getElementById("pix_code_val");
+            var copiedMsg=document.getElementById("pix_copied_msg");
+            if(btCopiar){
+              btCopiar.onclick=function(){
+                if(navigator.clipboard && navigator.clipboard.writeText){
+                  navigator.clipboard.writeText(res.pix.copyPaste);
+                }else{
+                  inputVal.select();
+                  document.execCommand("copy");
+                }
+                btCopiar.textContent="✓ Código Pix Copiado!";
+                btCopiar.style.background="#0D5C26";
+                if(copiedMsg) copiedMsg.style.display="block";
+              };
+            }
+
+            var btMudar=document.getElementById("bt_mudar_cartao");
+            if(btMudar){
+              btMudar.onclick=function(){
+                go("resumo");
+                setTimeout(function(){
+                  setPay("card");
+                }, 60);
+              };
+            }
+            return;
+          }
+
+          var targetUrl = res.invoiceUrl || res.url;
+          if(loadingEl){
+            loadingEl.innerHTML='Fatura pronta! Redirecionando para o pagamento...<br><a href="'+targetUrl+'" target="_top" style="color:var(--blue);font-weight:700;text-decoration:underline;display:inline-block;margin-top:6px">Clique aqui se não abrir automaticamente</a>';
+          }
+          btAction.textContent="Redirecionando...";
+          setTimeout(function(){
+            try {
+              if (window.top && window.top !== window) {
+                window.top.location.href=targetUrl;
+              } else {
+                window.location.href=targetUrl;
+              }
+            } catch(e) {
+              window.location.href=targetUrl;
+            }
+          }, 300);
+        }else{
+          alert("Não foi possível processar o pagamento: "+(res.error||"Erro desconhecido"));
+          btAction.disabled=false;
+          btAction.style.opacity="1";
+          btAction.textContent=payMethod==="pix"?"Pagar com Pix no Asaas →":"Pagar "+totalVal+" no Cartão →";
+          if(loadingEl){
+            loadingEl.style.display="block";
+            loadingEl.style.color="#D93025";
+            loadingEl.textContent="Erro: "+(res.error||"Verifique os dados informados.");
+          }
+        }
+      })
+      .catch(function(err){
+        alert("Erro de conexão ao gerar pagamento: "+err.message);
+        btAction.disabled=false;
+        btAction.style.opacity="1";
+        btAction.textContent=payMethod==="pix"?"Pagar com Pix no Asaas →":"Pagar "+totalVal+" no Cartão →";
+        if(loadingEl) loadingEl.style.display="none";
+      });
+    };
+  }
+};
+
+var IC={
+  scissors:'<svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16L18 4M16 16L6 4"/></svg>',
+  food:'<svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7M8 3v18M17 3c-2 1.5-3 4-3 7h3v11"/></svg>',
+  clinic:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>',
+  gym:'<svg viewBox="0 0 24 24"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>',
+  shop:'<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+  tools:'<svg viewBox="0 0 24 24"><path d="M14 6a4 4 0 0 0 5 5l-9 9a2.1 2.1 0 0 1-3-3l9-9a4 4 0 0 0-2-2z"/></svg>'
+};
+var RK={
+  "Barbearia, salão ou estética":{q:"barbearia perto de mim",l:"Barbearia",i:"scissors",c:[["Barbearia Central",4.8,260,"Centro · Aberto até 20:00"],["Barbearia do Bairro",4.7,80,"Vila Nova · Fecha às 18:00"],["Studio do Corte",4.6,140,"Jardim · Aberto até 19:00"]]},
+  "Restaurante, bar ou lanchonete":{q:"restaurante perto de mim",l:"Restaurante",i:"food",c:[["Cantina da Praça",4.8,184,"Centro · Aberto até 20:00"],["Restaurante do Centro",4.7,41,"Vila Nova · Fecha às 18:00"],["Sabor da Casa",4.6,96,"Jardim · Aberto até 19:00"]]},
+  "Clínica ou consultório":{q:"clínica perto de mim",l:"Clínica",i:"clinic",c:[["Clínica Vida",4.8,210,"Centro · Aberto até 19:00"],["Clínica do Bairro",4.7,64,"Vila Nova · Fecha às 18:00"],["Consultório Saúde+",4.6,120,"Jardim · Aberto até 18:00"]]},
+  "Academia ou estúdio":{q:"academia perto de mim",l:"Academia",i:"gym",c:[["Academia Força",4.8,310,"Centro · Aberto até 22:00"],["Academia do Bairro",4.7,90,"Vila Nova · Fecha às 21:00"],["Studio Move",4.6,150,"Jardim · Aberto até 22:00"]]},
+  "Loja, mercado ou pet shop":{q:"loja perto de mim",l:"Loja",i:"shop",c:[["Mercado Central",4.8,240,"Centro · Aberto até 20:00"],["Loja do Bairro",4.7,70,"Vila Nova · Fecha às 18:00"],["Pet Amigo",4.6,130,"Jardim · Aberto até 19:00"]]},
+  "o":{q:"serviços perto de mim",l:"Serviços",i:"tools",c:[["Serviços Central",4.8,200,"Centro · Aberto até 19:00"],["Atendimento do Bairro",4.7,60,"Vila Nova · Fecha às 18:00"],["Pró Serviços",4.6,110,"Jardim · Aberto até 18:00"]]}
+};
+var RKP=98;
+function rkRow(id,ic,nm,r,n,l,sub,me){var f=function(x){return String(x.toFixed(1)).replace(".",",")};
+  return '<div class="rkr'+(me?' me':'')+'"'+(id?' id="'+id+'"':'')+'><div class="ico">'+ic+'</div><div class="tx"><span class="nm">'+nm+'</span><span class="ln1"><b'+(me?' id="rkn"':'')+'>'+f(r)+'</b> <span class="rs"'+(me?' id="rks"':'')+' style="--p:'+(r/5*100)+'%">★★★★★</span> <b'+(me?' id="rkc"':'')+' style="font-weight:400;color:inherit">('+n+')</b> · '+l+'</span><span class="ln2">'+sub+'</span></div></div>'}
+V.rank=function(){var d=RK[S.tipo]||RK.o,ic=IC[d.i];
+  var rows=d.c.map(function(c,i){return rkRow("rkc"+i,ic,c[0],c[1],c[2],d.l,c[3],false)}).join("")+rkRow("rkme",ic,"Seu negócio",3.8,24,d.l,'Seu endereço · <span class="op">Aberto agora</span>',true);
+  return '<h1>Avaliação conta pra aparecer na frente no Google</h1><p class="sub">E é o que o cliente olha pra escolher onde ir.</p><div class="rkc"><div class="rks"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>'+esc(d.q)+'</span><em>EXEMPLO</em></div><div class="rk" id="rk" style="height:'+(4*RKP-10)+'px">'+rows+'</div><p class="rkmsg" id="rkmsg"></p></div><button class="btn" id="nx">Continuar</button>'};
+B.rank=function(){
+  var rows=[0,1,2].map(function(i){return document.getElementById("rkc"+i)}),me=document.getElementById("rkme"),ord=rows.concat([me]);
+  var place=function(){ord.forEach(function(el,i){el.style.transform="translateY("+(i*RKP)+"px)"})};
+  var f=function(x){return x.toFixed(1).replace(".",",")};
+  var upd=function(e){var r=3.8+1.1*e;document.getElementById("rkn").textContent=f(r);document.getElementById("rks").style.setProperty("--p",(r/5*100)+"%");document.getElementById("rkc").textContent="("+Math.round(24+163*e)+")"};
+  var swap=function(){var i=ord.indexOf(me);if(i>0){var t=ord[i-1];ord[i-1]=me;ord[i]=t;place()}};
+  var done=function(){me.classList.add("top");var m=document.getElementById("rkmsg");m.textContent="Mais avaliações, mais destaque: agora você aparece na frente.";m.classList.add("on")};
+  me.style.transition="none";place();
+  rows.forEach(function(r){r.style.transition="none"});void me.offsetWidth;me.style.transition="";rows.forEach(function(r){r.style.transition=""});
+  $("#nx").onclick=function(){go("biz")};
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches){upd(1);ord=[me].concat(rows);place();done();return}
+  var t0=null,th=[.25,.5,.75],j=0,D=3600;
+  function run(ts){if(!document.getElementById("rkme"))return;if(t0===null)t0=ts+900;
+    var k=Math.max(0,Math.min(1,(ts-t0)/D)),e=1-Math.pow(1-k,2);upd(e);
+    while(j<th.length&&k>=th[j]){swap();j++}
+    if(k<1)requestAnimationFrame(run);else{upd(1);setTimeout(done,500)}}
+  requestAnimationFrame(run)};
+go("rank");
+<\/script>
+</body>
+</html>
+</script>
+<script>
+(function(){
+  var o=document.getElementById("qzo"),END="<"+"/script>";
+  var cur=null;
+  function openQ(t){
+    t=t||"";
+    if(o.dataset.l&&cur!==t){var old=o.querySelector("iframe");if(old)old.remove();o.dataset.l=""}
+    if(!o.dataset.l){var f=document.createElement("iframe");f.title="Configurar placa NFC";
+      var h=document.getElementById("qz-tpl").textContent.split("<\\/script>").join(END);
+      f.srcdoc=h.replace("var S={biz:null,","var S={tipo:"+JSON.stringify(t).replace(/</g,"\\u003c")+",biz:null,");
+      o.appendChild(f);o.dataset.l="1";cur=t}
+    o.hidden=false;document.body.style.overflow="hidden";
+    try{history.pushState({q:1},"")}catch(e){}
+  }
+  function closeQ(){o.hidden=true;document.body.style.overflow=""}
+  document.querySelectorAll(".pick .opt").forEach(function(b){b.addEventListener("click",function(){document.querySelectorAll(".pick .opt.on").forEach(function(x){x.classList.remove("on")});b.classList.add("on");var t=b.dataset.t;setTimeout(function(){openQ(t);b.classList.remove("on")},260)})});
+  document.getElementById("qx").onclick=closeQ;
+  window.addEventListener("popstate",closeQ);
+})();
+</script>
+</body>
+</html>

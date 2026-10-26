@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Admin — Placa NFC Google</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Leaflet Map CSS e JS (Local primeiro com fallback automático para CDN) -->
+<link rel="stylesheet" href="./leaflet/leaflet.css" id="leaflet-css" />
+<script src="./leaflet/leaflet.js"></script>
+<script>
+if (typeof L === 'undefined') {
+  document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');
+  document.write('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">');
+}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F0F2F5;--card:#fff;--ink:#1A1D23;--muted:#6B7280;--line:#E5E7EB;--blue:#1A73E8;--blue-d:#174EA6;--blue-l:#E8F0FE;--green:#16A34A;--green-l:#DCFCE7;--red:#DC2626;--red-l:#FEE2E2;--amber:#D97706;--amber-l:#FEF3C7;--purple:#7C3AED;--purple-l:#EDE9FE;--radius:16px;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04)}
+body{font:400 15px/1.5 Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+
+/* ===== LOGIN ===== */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border-radius:20px;padding:40px 32px;max-width:380px;width:100%;box-shadow:var(--shadow);text-align:center}
+.login-box h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.login-box p{color:var(--muted);font-size:.92rem;margin-bottom:24px}
+.login-box input{width:100%;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;outline:none;transition:.2s}
+.login-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.15)}
+.login-box button{width:100%;margin-top:14px;padding:12px;background:var(--blue);color:#fff;border:0;border-radius:10px;font:700 1rem Inter,sans-serif;cursor:pointer;transition:.15s}
+.login-box button:hover{background:var(--blue-d)}
+.login-err{color:var(--red);font-size:.88rem;margin-top:10px;display:none}
+
+/* ===== LAYOUT ===== */
+#app-shell{display:none}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#1A1D23;color:#fff;padding:20px 0;display:flex;flex-direction:column;z-index:500}
+.sidebar .logo{padding:0 20px 24px;font:800 1.15rem Inter,sans-serif;display:flex;align-items:center;gap:10px}
+.sidebar .logo span{font-size:1.5rem}
+.sidebar nav{flex:1;display:flex;flex-direction:column;gap:2px}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:10px 20px;color:rgba(255,255,255,.65);font-weight:500;font-size:.94rem;text-decoration:none;transition:.15s;border-left:3px solid transparent;cursor:pointer}
+.sidebar nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.sidebar nav a.active{background:rgba(26,115,232,.18);color:#fff;border-left-color:var(--blue)}
+.sidebar nav a .icon{font-size:1.2rem;width:24px;text-align:center}
+.sidebar .user-info{padding:16px 20px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+.sidebar .user-info small{color:rgba(255,255,255,.5);font-size:.8rem}
+.sidebar .user-info button{background:none;border:0;color:rgba(255,255,255,.5);font-size:.82rem;cursor:pointer;text-decoration:underline;padding:0;margin-top:4px}
+.sidebar .user-info button:hover{color:#fff}
+
+.main{margin-left:240px;padding:20px 24px;min-height:100vh}
+.main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.main-header h1{font-size:1.55rem;font-weight:800}
+.main-header .sub{color:var(--muted);font-size:.9rem}
+
+/* ===== CARDS MÉTRICAS ===== */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
+.metric{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.metric .label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.metric .value{font:800 1.9rem Inter,sans-serif;margin-top:6px;color:var(--ink)}
+.metric .badge{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:6px;margin-left:8px;vertical-align:middle}
+.badge-green{background:var(--green-l);color:var(--green)}
+.metric .icon-bg{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:2.4rem;opacity:.12}
+
+/* ===== TABELAS ===== */
+.table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px}
+.table-bar{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.table-bar h2{font-size:1.1rem;font-weight:700;flex:1;min-width:200px}
+.search-input{padding:8px 14px;border:1.5px solid var(--line);border-radius:10px;font:400 .92rem Inter,sans-serif;outline:none;width:260px;max-width:100%;transition:.2s}
+.search-input:focus{border-color:var(--blue)}
+.filter-btn{padding:7px 14px;border:1.5px solid var(--line);border-radius:10px;font:600 .85rem Inter,sans-serif;cursor:pointer;background:var(--card);transition:.15s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+thead{background:#FAFBFC}
+th{padding:10px 16px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover{background:#F9FAFB}
+.status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.status-confirmed{background:var(--green-l);color:var(--green)}
+.status-pending{background:var(--amber-l);color:var(--amber)}
+.status-refunded{background:var(--red-l);color:var(--red)}
+.no-data{text-align:center;padding:40px 20px;color:var(--muted)}
+.no-data .icon{font-size:2.5rem;margin-bottom:10px;opacity:.5}
+
+/* Tabs */
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* ========================================================
+   ===== TELA DE PROSPECÇÃO COM MAPA (SPLIT SCREEN) =====
+   ======================================================== */
+.prosp-top-bar{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);margin-bottom:16px}
+.prosp-search-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.prosp-input{flex:1;min-width:220px;padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;font:400 .95rem Inter,sans-serif;outline:none;transition:.2s}
+.prosp-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
+.btn-search{padding:10px 20px;background:var(--blue);color:#fff;border:0;border-radius:10px;font:700 .92rem Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap}
+.btn-search:hover{background:var(--blue-d)}
+.btn-deep{padding:10px 18px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;border:0;border-radius:10px;font:700 .92rem Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap}
+.btn-deep:hover{filter:brightness(1.1)}
+
+.prosp-filters-row{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.filter-pill{padding:5px 12px;border-radius:999px;border:1.5px solid var(--line);font-size:.82rem;font-weight:600;background:#fff;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.filter-pill:hover{border-color:var(--blue)}
+.filter-pill.active{background:var(--blue-l);border-color:var(--blue);color:var(--blue-d)}
+.filter-pill .dot{width:8px;height:8px;border-radius:50%}
+.dot-red{background:#E53935}
+.dot-orange{background:#FB8C00}
+.dot-yellow{background:#FBC02D}
+.dot-gray{background:#546E7A}
+
+/* Grid Dividido: Esquerda Cards, Direita Mapa */
+.prosp-split-grid{display:grid;grid-template-columns:440px 1fr;gap:18px;height:calc(100vh - 180px);min-height:560px}
+@media(max-width:1050px){.prosp-split-grid{grid-template-columns:1fr;height:auto}}
+
+/* Coluna Esquerda: Feed */
+.prosp-feed-col{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+.prosp-stat-badge{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:12px 16px;box-shadow:var(--shadow);margin-bottom:12px;border:1px solid rgba(26,115,232,.1)}
+.prosp-stat-badge .bolt{width:36px;height:36px;border-radius:10px;background:#FEE2E2;color:#DC2626;display:grid;place-items:center;font-size:1.3rem;flex-shrink:0}
+.prosp-stat-badge .count-num{font:800 1.7rem/1 Inter,sans-serif;color:var(--blue)}
+.prosp-stat-badge .stat-txt{font-size:.84rem;color:var(--ink);line-height:1.25}
+.prosp-stat-badge .stat-txt small{color:var(--muted);font-size:.78rem}
+
+.prosp-cards-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:6px}
+.prosp-cards-scroll::-webkit-scrollbar{width:6px}
+.prosp-cards-scroll::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:999px}
+
+/* Card de Negócio (Estilo Exato da Imagem de Referência) */
+.lead-card{display:flex;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:12px;position:relative;box-shadow:var(--shadow);transition:all .2s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+.lead-card:hover,.lead-card.active{border-color:var(--blue);box-shadow:0 8px 24px -6px rgba(26,115,232,.2);transform:translateY(-2px)}
+.lead-card.contacted-card{border-left:5px solid var(--green)}
+
+.card-thumb{width:100px;height:100px;border-radius:14px;object-fit:cover;background:#E2E8F0;flex-shrink:0}
+.card-body{flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding-right:75px}
+
+.card-head-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.cat-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.72rem;font-weight:700;background:var(--blue-l);color:var(--blue-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.bookmark-btn{background:none;border:0;font-size:1.1rem;cursor:pointer;padding:2px;color:var(--muted);transition:.15s;margin-left:auto}
+.bookmark-btn:hover,.bookmark-btn.saved{color:var(--blue);transform:scale(1.15)}
+
+.card-title{font:800 .98rem/1.2 Inter,sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0}
+.card-address{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+
+.card-bottom-row{display:flex;align-items:center;gap:8px;margin-top:auto}
+
+.btn-g-profile{display:inline-flex;align-items:center;gap:5px;background:var(--blue);color:#fff;padding:6px 10px;border-radius:8px;font-size:.76rem;font-weight:700;text-decoration:none;transition:.15s;white-space:nowrap}
+.btn-g-profile:hover{background:var(--blue-d)}
+.g-icon-svg{width:14px;height:14px;background:#fff;border-radius:50%;padding:1px}
+
+.btn-zap-direct{display:inline-flex;align-items:center;gap:4px;background:#25D366;color:#fff;padding:6px 10px;border-radius:8px;font-size:.76rem;font-weight:700;text-decoration:none;transition:.15s;white-space:nowrap}
+.btn-zap-direct:hover{background:#128C7E}
+
+/* Badge de Avaliações no Card (Destaque para Menor Número) */
+.card-reviews-badge{position:absolute;top:12px;right:12px;text-align:right}
+.badge-stars-val{font:800 1.35rem/1 Inter,sans-serif;display:flex;align-items:center;justify-content:flex-end;gap:3px}
+.badge-count-sub{font-size:.68rem;font-weight:600;color:var(--muted);margin-top:2px}
+
+.rev-red{color:#E53935}
+.rev-orange{color:#FB8C00}
+.rev-yellow{color:#FBC02D}
+.rev-gray{color:#546E7A}
+
+/* Coluna Direita: Mapa */
+.prosp-map-col{position:relative;height:100%;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1.5px solid var(--line)}
+#prosp-map{width:100%;height:100%;z-index:1}
+
+/* Custom Marker Leaflet */
+.custom-map-pin{background:transparent !important;border:none !important}
+
+/* Botão Flutuante: "Pesquisar nesta área" */
+.floating-search-btn{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:999;background:#fff;border:1.5px solid var(--blue);color:var(--blue-d);padding:9px 18px;border-radius:999px;font:700 .86rem Inter,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.15);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s}
+.floating-search-btn:hover{background:var(--blue);color:#fff}
+.floating-search-btn.pulse{animation:pulseGlow 2s infinite}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(26,115,232,.4)}50%{box-shadow:0 0 0 10px rgba(26,115,232,0)}}
+
+/* Legenda Flutuante (Exata da Imagem de Referência) */
+.floating-legend{position:absolute;top:16px;right:16px;z-index:999;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 6px 20px rgba(0,0,0,.12);border:1px solid var(--line);font-size:.82rem}
+.legend-title{font-weight:800;font-size:.84rem;margin-bottom:8px;color:var(--ink)}
+.legend-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:600;color:var(--muted)}
+.legend-row:last-child{margin-bottom:0}
+
+/* Popup do Mapa */
+.leaflet-popup-content-wrapper{border-radius:16px;padding:4px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.map-popup-card{max-width:270px;padding:6px}
+.map-popup-card img{width:100%;height:115px;border-radius:12px;object-fit:cover;margin-bottom:8px;display:block}
+.map-popup-card h4{font:800 .98rem Inter,sans-serif;margin-bottom:3px;color:var(--ink)}
+.map-popup-card .pop-addr{font-size:.78rem;color:var(--muted);margin-bottom:8px;line-height:1.3}
+.map-popup-card .pop-act{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Spinner */
+.spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN ====== -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-size:2.5rem;margin-bottom:10px">🔐</div>
+    <h1>Painel Administrativo</h1>
+    <p>Placa NFC para Google — Dashboard</p>
+    <input type="password" id="login-pass" placeholder="Senha de acesso" autofocus>
+    <button id="login-btn" type="button">Entrar</button>
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+
+<!-- ====== APP SHELL ====== -->
+<div id="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><span>⭐</span> <b>Admin NFC</b></div>
+    <nav>
+      <a data-tab="dashboard"><span class="icon">📊</span> <span>Dashboard</span></a>
+      <a data-tab="pedidos"><span class="icon">🛒</span> <span>Pedidos</span></a>
+      <a data-tab="funil"><span class="icon">📈</span> <span>Funil</span></a>
+      <a data-tab="prospectar" class="active"><span class="icon">🔍</span> <span>Prospectar</span></a>
+      <a data-tab="contatos"><span class="icon">📋</span> <span>Contatos</span></a>
+    </nav>
+    <div class="user-info">
+      <small>Logado como Admin</small><br>
+      <button id="logout-btn">Sair</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- ====== TAB: DASHBOARD ====== -->
+    <div class="tab-page" id="page-dashboard">
+      <div class="main-header">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="sub">Visão geral do seu negócio</div>
+        </div>
+        <button class="filter-btn" id="refresh-btn" style="border-color:var(--blue);color:var(--blue)">↻ Atualizar</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="label">Receita Total</div><div class="value" id="m-receita">R$ 0</div><div class="icon-bg">💰</div></div>
+        <div class="metric"><div class="label">Pedidos</div><div class="value" id="m-pedidos">0</div><div class="icon-bg">📦</div></div>
+        <div class="metric"><div class="label">Confirmados</div><div class="value" id="m-confirmados">0 <span class="badge badge-green" id="m-conf-pct">0%</span></div><div class="icon-bg">✅</div></div>
+        <div class="metric"><div class="label">Pendentes</div><div class="value" id="m-pendentes">0</div><div class="icon-bg">⏳</div></div>
+        <div class="metric"><div class="label">Ticket Médio</div><div class="value" id="m-ticket">R$ 0</div><div class="icon-bg">🎯</div></div>
+        <div class="metric"><div class="label">Prospecções</div><div class="value" id="m-prospects">0</div><div class="icon-bg">🔍</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-bar"><h2>Últimos Pedidos</h2></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Data</th><th>Cliente</th><th>Empresa</th><th>Qtd</th><th>Valor</th><th>Status</th></tr></thead>
+            <tbody id="dash-orders"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TAB: PEDIDOS ====== -->
+    <div class="tab-page" id="page-pedidos">
+      <div class="main-header">
+        <div><h1>Pedidos</h1><div class="sub">Todos os pedidos recebidos</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-bar">
+          <h2>Lista de Pedidos</h2>
+          <input class="search-input" id="orders-search" placeholder="Buscar cliente, empresa, WhatsApp...">
+          <button class="filter-btn" data-filter="all">Todos</button>
+          <button class="filter-btn" data-filter="CONFIRMED">Confirmados</button>
+          <button class="filter-btn" data-filter="PENDING">Pendentes</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Data</th><th>Cliente</th><th>WhatsApp</th><th>Empresa</th><th>Tipo</th><th>Qtd</th><th>Frete</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="orders-pagination"></div>
+      </div>
+    </div>
+
+    <!-- ====== TAB: FUNIL ====== -->
+    <div class="tab-page" id="page-funil">
+      <div class="main-header">
+        <div><h1>Funil de Vendas</h1><div class="sub">Acompanhe as etapas do seu funil</div></div>
+        <button class="filter-btn" id="funnel-refresh" style="border-color:var(--blue);color:var(--blue)">↻ Atualizar</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="label">Visitantes (hoje)</div><div class="value" id="fm-visit">—</div><div class="icon-bg">👁️</div></div>
+        <div class="metric"><div class="label">Escolheu Categoria</div><div class="value" id="fm-cat">—</div><div class="icon-bg">📋</div></div>
+        <div class="metric"><div class="label">Finalizou Pedido</div><div class="value" id="fm-order">—</div><div class="icon-bg">🛒</div></div>
+        <div class="metric"><div class="label">Pagou</div><div class="value" id="fm-paid">—</div><div class="icon-bg">💳</div></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:20px">
+        <div class="table-bar"><h2>Pedidos por Tipo de Negócio</h2></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Tipo de Negócio</th><th>Pedidos</th><th>Confirmados</th><th>Receita</th></tr></thead>
+            <tbody id="funnel-by-type"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-bar"><h2>Pedidos por Método de Pagamento</h2></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Método</th><th>Pedidos</th><th>Confirmados</th><th>Receita Total</th></tr></thead>
+            <tbody id="funnel-by-method"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TAB: PROSPECTAR (COM MAPA INTERATIVO) ====== -->
+    <div class="tab-page active" id="page-prospectar">
+      <div class="prosp-top-bar">
+        <div class="prosp-search-row">
+          <input id="prosp-kw" class="prosp-input" placeholder="O que busca? Ex: oficina mecânica, barbearia, dentista..." value="oficina mecânica">
+          <input id="prosp-loc" class="prosp-input" style="max-width:240px" placeholder="Cidade ou bairro... Ex: Cotia, SP" value="Cotia, SP">
+          <button class="btn-search" id="btn-prosp-search">🔍 Buscar</button>
+          <button class="btn-deep" id="btn-prosp-scan" title="Varre todos os termos, categorias e bairros da cidade">🚀 Varredura Máxima (100+ Empresas)</button>
+        </div>
+
+        <div class="prosp-filters-row">
+          <span style="font-size:.82rem;font-weight:700;color:var(--muted)">Filtrar avaliações:</span>
+          <button class="filter-pill active" data-range="all">Todas</button>
+          <button class="filter-pill" data-range="0-10"><span class="dot dot-red"></span> 0 – 10 (Leads Quentes)</button>
+          <button class="filter-pill" data-range="11-30"><span class="dot dot-orange"></span> 11 – 30</button>
+          <button class="filter-pill" data-range="31-50"><span class="dot dot-yellow"></span> 31 – 50</button>
+          <button class="filter-pill" data-range="50+"><span class="dot dot-gray"></span> +50</button>
+          <label style="margin-left:auto;font-size:.82rem;font-weight:700;color:var(--blue-d);display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="chk-accumulate" checked> 📌 Acumular empresas no mapa
+          </label>
+          <label style="font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="chk-hide-contacted"> Ocultar contatados
+          </label>
+          <button class="filter-pill" id="btn-clear-prosp" style="color:var(--red);border-color:#FCA5A5" title="Limpar mapa e lista">🗑️ Limpar</button>
+          <button class="filter-pill" id="btn-export-prosp" style="color:var(--green);border-color:#86EFAC" title="Exportar todas as empresas encontradas para CSV">📥 Exportar CSV</button>
+        </div>
+      </div>
+
+      <!-- Grid com Feed na Esquerda e Mapa na Direita -->
+      <div class="prosp-split-grid">
+        <!-- Coluna Esquerda: Feed -->
+        <div class="prosp-feed-col">
+          <div class="prosp-stat-badge">
+            <div class="bolt">⚡</div>
+            <div class="count-num" id="feed-count">0</div>
+            <div class="stat-txt">
+              <strong>empresas encontradas</strong><br>
+              <small>Ordenadas por menor número de avaliações.</small>
+            </div>
+          </div>
+
+          <div class="prosp-cards-scroll" id="prosp-cards-list">
+            <div class="no-data"><div class="spinner"></div><p style="margin-top:12px">Carregando negócios no mapa...</p></div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Mapa Interativo -->
+        <div class="prosp-map-col">
+          <button id="btn-search-area" class="floating-search-btn pulse">📍 Pesquisar nesta área</button>
+
+          <div class="floating-legend">
+            <div class="legend-title">Número de avaliações</div>
+            <div class="legend-row"><span class="dot dot-red"></span> 0 – 10 avaliações</div>
+            <div class="legend-row"><span class="dot dot-orange"></span> 11 – 30 avaliações</div>
+            <div class="legend-row"><span class="dot dot-yellow"></span> 31 – 50 avaliações</div>
+            <div class="legend-row"><span class="dot dot-gray"></span> +50 avaliações</div>
+          </div>
+
+          <div id="prosp-map"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TAB: CONTATOS ====== -->
+    <div class="tab-page" id="page-contatos">
+      <div class="main-header">
+        <div><h1>Contatos Prospectados</h1><div class="sub">Negócios que você já salvou ou entrou em contato</div></div>
+        <button class="filter-btn" id="export-contacts" style="border-color:var(--green);color:var(--green)">📥 Exportar CSV</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-bar">
+          <h2>Meus Contatos</h2>
+          <input class="search-input" id="contacts-search" placeholder="Buscar contato...">
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Data</th><th>Negócio</th><th>Nota</th><th>Avaliações</th><th>Endereço</th><th>Telefone</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead>
+            <tbody id="contacts-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app-shell -->
+
+<script>
+(function(){
+  // Redireciona automaticamente se aberto direto pelo arquivo
+  if (window.location.protocol === 'file:') {
+    window.location.href = 'http://localhost:3000/admin.html';
+    return;
+  }
+
+  // ===== CONFIG & AUTH =====
+  var ADMIN_PASS = 'admin123';
+  var SUPABASE_URL = 'https://gwafsjzlyuiifhptxoxo.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_kF0ApPOjQqX6490ePvG3aw_M4dghh6Y';
+  var CONTACTS_KEY = 'nfc_admin_contacts';
+
+  var isLogged = sessionStorage.getItem('nfc_admin_auth') === '1';
+  if(isLogged) showApp();
+
+  document.getElementById('login-btn').onclick = function(){
+    var pass = document.getElementById('login-pass').value;
+    if(pass === ADMIN_PASS){
+      sessionStorage.setItem('nfc_admin_auth','1');
+      showApp();
+    } else {
+      document.getElementById('login-err').style.display='block';
+    }
+  };
+  document.getElementById('login-pass').addEventListener('keydown', function(e){
+    if(e.key==='Enter') document.getElementById('login-btn').click();
+  });
+  document.getElementById('logout-btn').onclick = function(){
+    sessionStorage.removeItem('nfc_admin_auth');
+    location.reload();
+  };
+
+  function showApp(){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-shell').style.display='block';
+    loadDashboard();
+    initProspMap();
+    doProspSearch('normal', false);
+  }
+
+  // ===== NAVEGAÇÃO DE ABAS =====
+  document.querySelectorAll('.sidebar nav a').forEach(function(a){
+    a.addEventListener('click', function(){
+      document.querySelectorAll('.sidebar nav a').forEach(function(x){x.classList.remove('active')});
+      a.classList.add('active');
+      var tab = a.dataset.tab;
+      document.querySelectorAll('.tab-page').forEach(function(p){p.classList.remove('active')});
+      document.getElementById('page-'+tab).classList.add('active');
+      if(tab==='dashboard') loadDashboard();
+      if(tab==='pedidos') loadOrders();
+      if(tab==='funil') loadFunnel();
+      if(tab==='contatos') renderContacts();
+      if(tab==='prospectar') {
+        setTimeout(function(){
+          if(!mapInstance) initProspMap();
+          else {
+            try { mapInstance.invalidateSize(); } catch(e){}
+          }
+          if(!currentPlaces || !currentPlaces.length) {
+            doProspSearch('normal', false);
+          }
+        }, 150);
+      }
+    });
+  });
+
+  // ===== SUPABASE HELPER =====
+  function sbFetch(path, opts){
+    opts = opts || {};
+    var headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    };
+    if(opts.headers) Object.keys(opts.headers).forEach(function(k){headers[k]=opts.headers[k]});
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(r){return r.json()});
+  }
+
+  function fmtMoney(v){return 'R$ ' + Number(v||0).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+  function fmtDate(d){if(!d)return '—'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+  function fmtPhone(p){if(!p)return '—'; p=String(p).replace(/\D/g,''); if(p.length===11) return '('+p.slice(0,2)+') '+p.slice(2,7)+'-'+p.slice(7); return p}
+  function statusBadge(s){
+    s = (s||'').toUpperCase();
+    if(s==='CONFIRMED') return '<span class="status status-confirmed">✓ Confirmado</span>';
+    if(s==='PENDING') return '<span class="status status-pending">⏳ Pendente</span>';
+    if(s==='REFUNDED') return '<span class="status status-refunded">↩ Estornado</span>';
+    return '<span class="status status-pending">'+s+'</span>';
+  }
+
+  // ===== DASHBOARD =====
+  var allOrders = [];
+  function loadDashboard(){
+    sbFetch('pedidos?select=*&order=created_at.desc').then(function(data){
+      if(!Array.isArray(data)){data=[];}
+      allOrders = data;
+      var total=data.length, confirmed=0, pending=0, revenue=0;
+      data.forEach(function(o){
+        if(o.status_pagamento==='CONFIRMED'){confirmed++;revenue+=Number(o.valor_total||0)}
+        else{pending++}
+      });
+      document.getElementById('m-receita').textContent = fmtMoney(revenue);
+      document.getElementById('m-pedidos').textContent = total;
+      document.getElementById('m-confirmados').innerHTML = confirmed + ' <span class="badge badge-green">'+(total?Math.round(confirmed/total*100):0)+'%</span>';
+      document.getElementById('m-pendentes').textContent = pending;
+      document.getElementById('m-ticket').textContent = confirmed ? fmtMoney(revenue/confirmed) : 'R$ 0';
+      document.getElementById('m-prospects').textContent = getContacts().length;
+
+      var html='';
+      data.slice(0,5).forEach(function(o){
+        html+='<tr><td>'+fmtDate(o.created_at)+'</td><td>'+esc(o.nome_cliente||'—')+'</td><td>'+esc(o.nome_empresa||'—')+'</td><td>'+
+          (o.quantidade_placas||1)+'</td><td>'+fmtMoney(o.valor_total)+'</td><td>'+statusBadge(o.status_pagamento)+'</td></tr>';
+      });
+      if(!html) html='<tr><td colspan="6" class="no-data"><div class="icon">📭</div><p>Nenhum pedido encontrado</p></td></tr>';
+      document.getElementById('dash-orders').innerHTML=html;
+    });
+  }
+  document.getElementById('refresh-btn').onclick = loadDashboard;
+
+  // ===== PEDIDOS =====
+  var ordersFilter = 'all';
+  var ordersPage = 0;
+  var ordersPerPage = 15;
+
+  function loadOrders(){
+    sbFetch('pedidos?select=*&order=created_at.desc').then(function(data){
+      if(!Array.isArray(data)) data=[];
+      allOrders = data;
+      renderOrdersTable();
+    });
+  }
+
+  function renderOrdersTable(){
+    var q = (document.getElementById('orders-search').value||'').toLowerCase();
+    var filtered = allOrders.filter(function(o){
+      if(ordersFilter!=='all' && o.status_pagamento!==ordersFilter) return false;
+      if(q){
+        var s = [o.nome_cliente,o.nome_empresa,o.whatsapp,o.tipo_negocio,o.cidade].join(' ').toLowerCase();
+        if(s.indexOf(q)===-1) return false;
+      }
+      return true;
+    });
+
+    var totalPages = Math.ceil(filtered.length/ordersPerPage)||1;
+    if(ordersPage>=totalPages) ordersPage=totalPages-1;
+    var start = ordersPage*ordersPerPage;
+    var page = filtered.slice(start, start+ordersPerPage);
+
+    var html='';
+    page.forEach(function(o){
+      var zapLink = o.whatsapp ? 'https://wa.me/55'+o.whatsapp.replace(/\D/g,'') : '#';
+      html+='<tr>'+
+        '<td>'+fmtDate(o.created_at)+'</td>'+
+        '<td><b>'+esc(o.nome_cliente||'—')+'</b></td>'+
+        '<td><a href="'+zapLink+'" target="_blank" style="color:var(--green)">'+fmtPhone(o.whatsapp)+'</a></td>'+
+        '<td>'+esc(o.nome_empresa||'—')+'</td>'+
+        '<td style="font-size:.82rem">'+esc(o.tipo_negocio||'—')+'</td>'+
+        '<td>'+( o.quantidade_placas||1)+'</td>'+
+        '<td style="font-size:.82rem">'+esc(o.tipo_frete||'—')+'</td>'+
+        '<td><b>'+fmtMoney(o.valor_total)+'</b></td>'+
+        '<td style="font-size:.82rem">'+(o.metodo_pagamento==='PIX'?'Pix':'Cartão')+'</td>'+
+        '<td>'+statusBadge(o.status_pagamento)+'</td>'+
+        '<td><a href="'+zapLink+'" target="_blank" title="WhatsApp" style="font-size:1.2rem;text-decoration:none">💬</a></td>'+
+        '</tr>';
+    });
+    if(!html) html='<tr><td colspan="11" class="no-data"><div class="icon">📭</div><p>Nenhum pedido encontrado</p></td></tr>';
+    document.getElementById('orders-body').innerHTML=html;
+
+    var pagHtml='<button '+(ordersPage===0?'disabled':'')+' data-p="prev">← Anterior</button>';
+    for(var i=0;i<totalPages;i++){
+      pagHtml+='<button class="'+(i===ordersPage?'active':'')+'" data-p="'+i+'">'+(i+1)+'</button>';
+    }
+    pagHtml+='<button '+(ordersPage>=totalPages-1?'disabled':'')+' data-p="next">Próximo →</button>';
+    document.getElementById('orders-pagination').innerHTML=pagHtml;
+  }
+
+  document.getElementById('orders-pagination').addEventListener('click',function(e){
+    var btn=e.target.closest('button');if(!btn)return;
+    var p=btn.dataset.p;
+    if(p==='prev') ordersPage=Math.max(0,ordersPage-1);
+    else if(p==='next') ordersPage++;
+    else ordersPage=parseInt(p);
+    renderOrdersTable();
+  });
+  document.getElementById('orders-search').addEventListener('input', function(){ordersPage=0;renderOrdersTable()});
+
+  document.querySelectorAll('[data-filter]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('[data-filter]').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      ordersFilter = btn.dataset.filter;
+      ordersPage=0;
+      renderOrdersTable();
+    });
+  });
+
+  // ===== FUNIL =====
+  function loadFunnel(){
+    sbFetch('pedidos?select=*&order=created_at.desc').then(function(data){
+      if(!Array.isArray(data)) data=[];
+      var total=data.length, confirmed=data.filter(function(o){return o.status_pagamento==='CONFIRMED'}).length;
+      document.getElementById('fm-visit').textContent='—';
+      document.getElementById('fm-cat').textContent=total;
+      document.getElementById('fm-order').textContent=total;
+      document.getElementById('fm-paid').textContent=confirmed;
+
+      var byType={};
+      data.forEach(function(o){
+        var t=o.tipo_negocio||'Outros';
+        if(!byType[t]) byType[t]={total:0,confirmed:0,revenue:0};
+        byType[t].total++;
+        if(o.status_pagamento==='CONFIRMED'){byType[t].confirmed++;byType[t].revenue+=Number(o.valor_total||0)}
+      });
+      var typeHtml='';
+      Object.keys(byType).forEach(function(t){
+        var d=byType[t];
+        typeHtml+='<tr><td><b>'+esc(t)+'</b></td><td>'+d.total+'</td><td>'+d.confirmed+'</td><td>'+fmtMoney(d.revenue)+'</td></tr>';
+      });
+      if(!typeHtml) typeHtml='<tr><td colspan="4" class="no-data">Sem dados</td></tr>';
+      document.getElementById('funnel-by-type').innerHTML=typeHtml;
+
+      var byMethod={};
+      data.forEach(function(o){
+        var m=o.metodo_pagamento==='PIX'?'Pix':(o.metodo_pagamento==='CREDIT_CARD'?'Cartão de Crédito':'Outro');
+        if(!byMethod[m]) byMethod[m]={total:0,confirmed:0,revenue:0};
+        byMethod[m].total++;
+        if(o.status_pagamento==='CONFIRMED'){byMethod[m].confirmed++;byMethod[m].revenue+=Number(o.valor_total||0)}
+      });
+      var methodHtml='';
+      Object.keys(byMethod).forEach(function(m){
+        var d=byMethod[m];
+        methodHtml+='<tr><td><b>'+esc(m)+'</b></td><td>'+d.total+'</td><td>'+d.confirmed+'</td><td>'+fmtMoney(d.revenue)+'</td></tr>';
+      });
+      if(!methodHtml) methodHtml='<tr><td colspan="4" class="no-data">Sem dados</td></tr>';
+      document.getElementById('funnel-by-method').innerHTML=methodHtml;
+    });
+  }
+  document.getElementById('funnel-refresh').onclick = loadFunnel;
+
+  // =========================================================================
+  // ===== PROSPECTAR: MAPA LEAFLET 100% FUNCIONAL + FEED LEADS QUENTES =====
+  // =========================================================================
+  var mapInstance = null;
+  var mapMarkers = [];
+  var currentPlaces = [];
+  var currentFilterRange = 'all';
+
+  function getReviewColor(count) {
+    count = Number(count) || 0;
+    if (count <= 10) return { hex: '#E53935', cls: 'rev-red', label: '0 – 10' };
+    if (count <= 30) return { hex: '#FB8C00', cls: 'rev-orange', label: '11 – 30' };
+    if (count <= 50) return { hex: '#FBC02D', cls: 'rev-yellow', label: '31 – 50' };
+    return { hex: '#546E7A', cls: 'rev-gray', label: '+50' };
+  }
+
+  function createLeafletPin(count, hexColor) {
+    if (typeof L === 'undefined') return null;
+    var displayCount = count > 99 ? '99+' : count;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">' +
+      '<filter id="sh" x="-20%" y="-10%" width="140%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-opacity="0.3"/></filter>' +
+      '<path d="M18 0 C8 0 0 8 0 18 C0 29 15.5 42.2 17.2 43.6 C17.7 44 18.3 44 18.8 43.6 C20.5 42.2 36 29 36 18 C36 8 28 0 18 0 Z" fill="' + hexColor + '" stroke="#ffffff" stroke-width="2" filter="url(#sh)"/>' +
+      '<circle cx="18" cy="18" r="14" fill="' + hexColor + '"/>' +
+      '<text x="18" y="22.5" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="12" text-anchor="middle">' + displayCount + '</text>' +
+      '</svg>';
+
+    return L.divIcon({
+      html: svg,
+      className: 'custom-map-pin',
+      iconSize: [36, 44],
+      iconAnchor: [18, 44],
+      popupAnchor: [0, -42]
+    });
+  }
+
+  function parseCategoryInfo(p) {
+    var name = ((p.displayName && p.displayName.text) ? p.displayName.text : (typeof p.displayName === 'string' ? p.displayName : (p.name || ''))).toLowerCase();
+    var prim = ((p.primaryTypeDisplayName && p.primaryTypeDisplayName.text) ? p.primaryTypeDisplayName.text : '').toLowerCase();
+    var types = (p.types || []).join(' ').toLowerCase();
+
+    if (name.includes('oficina') || name.includes('mecanic') || types.includes('car_repair')) return { name: 'Oficina mecânica', icon: '🚗' };
+    if (name.includes('barbearia') || name.includes('barber') || types.includes('hair_care')) return { name: 'Barbearia', icon: '💈' };
+    if (name.includes('salão') || name.includes('estética') || types.includes('beauty_salon')) return { name: 'Salão de beleza', icon: '✂️' };
+    if (name.includes('odonto') || name.includes('dent') || types.includes('dentist')) return { name: 'Clínica odontológica', icon: '🦷' };
+    if (name.includes('clínica') || name.includes('médic') || types.includes('doctor')) return { name: 'Clínica / Saúde', icon: '🏥' };
+    if (name.includes('academia') || name.includes('cross') || types.includes('gym')) return { name: 'Academia', icon: '🏋️' };
+    if (name.includes('restaurante') || name.includes('lanch') || types.includes('restaurant')) return { name: 'Restaurante', icon: '🍔' };
+    if (name.includes('pet') || name.includes('vet') || types.includes('veterinary_care')) return { name: 'Pet Shop / Vet', icon: '🐾' };
+    return { name: (p.primaryTypeDisplayName && p.primaryTypeDisplayName.text) || 'Comércio Local', icon: '🏪' };
+  }
+
+  function initProspMap() {
+    var mapEl = document.getElementById('prosp-map');
+    if (!mapEl) return;
+
+    if (mapInstance) {
+      setTimeout(function(){
+        try { mapInstance.invalidateSize(); } catch(e){}
+      }, 150);
+      return;
+    }
+
+    try {
+      if (typeof L !== 'undefined') {
+        if (mapEl._leaflet_id) {
+          mapEl._leaflet_id = null;
+        }
+        mapInstance = L.map('prosp-map', {
+          center: [-23.6064, -46.9278],
+          zoom: 14,
+          zoomControl: true
+        });
+
+        // Camada de tiles oficiais do Google Maps (Roadmap sem marca d'água e sem bloqueio de chave)
+        L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(mapInstance);
+
+        setTimeout(function(){
+          if (mapInstance) {
+            try { mapInstance.invalidateSize(); } catch(e){}
+          }
+        }, 300);
+
+        // Quando o usuário move o mapa, o botão "Pesquisar nesta área" pulsa
+        mapInstance.on('moveend', function() {
+          var btn = document.getElementById('btn-search-area');
+          if (btn) btn.classList.add('pulse');
+        });
+      } else {
+        console.warn('Leaflet ainda não disponível no momento de initProspMap.');
+      }
+    } catch (e) {
+      console.error('Aviso ao inicializar mapa Leaflet:', e);
+    }
+  }
+
+  function doProspSearch(mode, useBounds) {
+    var kwEl = document.getElementById('prosp-kw');
+    var locEl = document.getElementById('prosp-loc');
+    var kw = kwEl ? kwEl.value.trim() : 'oficina mecânica';
+    var loc = locEl ? locEl.value.trim() : 'Cotia, SP';
+    if (!kw && !loc) { alert('Digite o segmento ou a cidade'); return; }
+
+    var query = (kw + ' ' + loc).trim();
+    var url = '/api/admin/places-search?q=' + encodeURIComponent(query);
+
+    if (mode === 'scan') {
+      url += '&scan=full';
+    } else if (mode === 'deep') {
+      url += '&deep=1';
+    }
+
+    if (useBounds && mapInstance) {
+      try {
+        var b = mapInstance.getBounds();
+        var sw = b.getSouthWest();
+        var ne = b.getNorthEast();
+        url += '&lowLat=' + sw.lat + '&lowLng=' + sw.lng + '&highLat=' + ne.lat + '&highLng=' + ne.lng;
+      } catch(e) {
+        console.warn('Erro ao ler bounds:', e);
+      }
+    }
+
+    var listEl = document.getElementById('prosp-cards-list');
+    var chkAcc = document.getElementById('chk-accumulate');
+    var isAccumulate = chkAcc ? chkAcc.checked : false;
+
+    if (listEl && (!isAccumulate || currentPlaces.length === 0)) {
+      listEl.innerHTML = '<div class="no-data"><div class="spinner"></div><p style="margin-top:12px;font-weight:700">' + 
+        (mode === 'scan' ? '🚀 Executando Varredura Máxima na cidade (100+ empresas)...' : '🔍 Buscando empresas no Google Maps...') + 
+        '</p><small style="color:var(--muted)">Localizando estabelecimentos e avaliações em tempo real...</small></div>';
+    }
+
+    fetch(url)
+      .then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + r.statusText);
+        return r.json();
+      })
+      .then(function(data){
+        if (data.error) throw new Error(data.error);
+        var places = data.places || [];
+
+        if (isAccumulate && currentPlaces.length > 0) {
+          var seenIds = new Set(currentPlaces.map(function(p){ return p.id; }));
+          places.forEach(function(p){
+            if (p.id && !seenIds.has(p.id)) {
+              seenIds.add(p.id);
+              currentPlaces.push(p);
+            }
+          });
+        } else {
+          currentPlaces = places;
+        }
+
+        // Ordenar por MENOR número de avaliações primeiro (Leads mais quentes no topo)
+        currentPlaces.sort(function(a, b){
+          var countA = Number(a.userRatingCount) || 0;
+          var countB = Number(b.userRatingCount) || 0;
+          return countA - countB;
+        });
+
+        renderFeedAndMap();
+
+        var btnArea = document.getElementById('btn-search-area');
+        if (btnArea) btnArea.classList.remove('pulse');
+      })
+      .catch(function(err){
+        console.error('Erro na busca de locais:', err);
+        if (listEl) {
+          listEl.innerHTML = '<div class="no-data">' +
+            '<div class="icon">⚠️</div>' +
+            '<p style="font-weight:700;color:var(--red);margin-bottom:6px">Erro ao buscar empresas</p>' +
+            '<p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">' + esc(err.message) + '</p>' +
+            '<button class="btn-search" onclick="window.doProspSearch(\'normal\', false)">↻ Tentar novamente</button>' +
+          '</div>';
+        }
+      });
+  }
+  window.doProspSearch = doProspSearch;
+
+  function renderFeedAndMap() {
+    var listEl = document.getElementById('prosp-cards-list');
+    var countEl = document.getElementById('feed-count');
+    var chkHide = document.getElementById('chk-hide-contacted');
+    var hideContacted = chkHide ? chkHide.checked : false;
+    var contacts = getContacts();
+    var contactMap = {};
+    contacts.forEach(function(c){ if(c.place_id) contactMap[c.place_id] = true; });
+
+    // Limpa marcadores anteriores com segurança
+    mapMarkers.forEach(function(mObj){
+      if(mapInstance && mObj.marker) {
+        try { mapInstance.removeLayer(mObj.marker); } catch(e){}
+      }
+    });
+    mapMarkers = [];
+
+    var filtered = currentPlaces.filter(function(p){
+      var count = Number(p.userRatingCount) || 0;
+      var isSaved = !!contactMap[p.id];
+      if (hideContacted && isSaved) return false;
+
+      if (currentFilterRange === '0-10' && count > 10) return false;
+      if (currentFilterRange === '11-30' && (count < 11 || count > 30)) return false;
+      if (currentFilterRange === '31-50' && (count < 31 || count > 50)) return false;
+      if (currentFilterRange === '50+' && count <= 50) return false;
+      return true;
+    });
+
+    if (countEl) countEl.textContent = filtered.length;
+
+    if (!filtered.length) {
+      if (listEl) {
+        listEl.innerHTML = '<div class="no-data"><div class="icon">🔍</div><p>Nenhuma empresa encontrada com estes filtros.<br>Mova o mapa ou altere os filtros.</p></div>';
+      }
+      return;
+    }
+
+    var latLngList = [];
+    var cardsHtml = '';
+
+    filtered.forEach(function(p){
+      var count = Number(p.userRatingCount) || 0;
+      var ratingVal = Number(p.rating || 0).toFixed(1).replace('.', ',');
+      var colorInfo = getReviewColor(count);
+      var cat = parseCategoryInfo(p);
+      var isSaved = !!contactMap[p.id];
+      var bizName = (p.displayName && p.displayName.text) ? p.displayName.text : (typeof p.displayName === 'string' ? p.displayName : (p.name || 'Empresa Local'));
+      var shortAddr = p.formattedAddress || '';
+      var gMapsUrl = p.googleMapsUri || ('https://www.google.com/maps/place/?q=place_id:' + p.id);
+      var phone = p.nationalPhoneNumber || '';
+      var zapNum = phone.replace(/\D/g, '');
+      if (zapNum.length === 10 || zapNum.length === 11) zapNum = '55' + zapNum;
+
+      var zapBtn = zapNum
+        ? '<a href="https://wa.me/' + zapNum + '?text=' + encodeURIComponent('Olá! Vi seu negócio no Google e tenho uma solução para aumentar suas avaliações 5 estrelas. Posso te apresentar?') + '" target="_blank" class="btn-zap-direct" onclick="event.stopPropagation()">💬 WhatsApp</a>'
+        : '';
+
+      var photoUrl = (p.photos && p.photos[0] && p.photos[0].name)
+        ? '/api/places/photo?ref=' + encodeURIComponent(p.photos[0].name)
+        : 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=200&auto=format&fit=crop&q=60';
+
+      // HTML do Card na Esquerda
+      cardsHtml += '<div class="lead-card' + (isSaved ? ' contacted-card' : '') + '" id="card-' + p.id + '" onclick="focusBizOnMap(\'' + p.id + '\')">' +
+        '<img class="card-thumb" src="' + photoUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=200&auto=format&fit=crop&q=60\'">' +
+        '<div class="card-body">' +
+          '<div class="card-head-row">' +
+            '<span class="cat-pill">' + cat.icon + ' ' + esc(cat.name) + '</span>' +
+            '<button class="bookmark-btn' + (isSaved ? ' saved' : '') + '" onclick="event.stopPropagation();toggleSaveContact(\'' + p.id + '\')" title="' + (isSaved ? 'Remover dos contatos' : 'Salvar como contatado') + '">' +
+              (isSaved ? '🔖' : '🏷️') +
+            '</button>' +
+          '</div>' +
+          '<h3 class="card-title">' + esc(bizName) + '</h3>' +
+          '<div class="card-address">📍 ' + esc(shortAddr) + '</div>' +
+          '<div class="card-bottom-row">' +
+            '<a href="' + gMapsUrl + '" target="_blank" class="btn-g-profile" onclick="event.stopPropagation()">' +
+              '<svg viewBox="0 0 24 24" class="g-icon-svg"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.68v3h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.09C3.26 21.36 7.37 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.32a7.13 7.13 0 0 1 0-4.64V6.59H1.24a11.97 11.97 0 0 0 0 10.82l4.04-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.26 2.64 1.24 6.59l4.04 3.09c.95-2.83 3.6-4.93 6.72-4.93z"/></svg>' +
+              'Ver Perfil no Google →' +
+            '</a>' +
+            zapBtn +
+          '</div>' +
+        '</div>' +
+        '<div class="card-reviews-badge ' + colorInfo.cls + '">' +
+          '<div class="badge-stars-val">★ ' + count + '</div>' +
+          '<div class="badge-count-sub">avaliações</div>' +
+        '</div>' +
+      '</div>';
+
+      // Marcador no Mapa (se Leaflet e coordenadas existirem)
+      if (typeof L !== 'undefined' && mapInstance && p.location && p.location.latitude && p.location.longitude) {
+        try {
+          var lat = p.location.latitude;
+          var lng = p.location.longitude;
+          latLngList.push([lat, lng]);
+
+          var pinIcon = createLeafletPin(count, colorInfo.hex);
+
+          var marker = L.marker([lat, lng], {
+            icon: pinIcon,
+            title: bizName
+          }).addTo(mapInstance);
+
+          var popHtml = '<div class="map-popup-card">' +
+            '<img src="' + photoUrl + '" onerror="this.style.display=\'none\'">' +
+            '<h4>' + esc(bizName) + '</h4>' +
+            '<div style="font-weight:700;font-size:.85rem;color:' + colorInfo.hex + ';margin-bottom:4px">★ ' + count + ' avaliações (' + ratingVal + ' ★)</div>' +
+            '<div class="pop-addr">📍 ' + esc(shortAddr) + '</div>' +
+            '<div class="pop-act">' +
+              '<a href="' + gMapsUrl + '" target="_blank" class="btn-g-profile">Ver no Google →</a>' +
+              (zapNum ? '<a href="https://wa.me/' + zapNum + '" target="_blank" class="btn-zap-direct">WhatsApp</a>' : '') +
+            '</div>' +
+          '</div>';
+
+          marker.bindPopup(popHtml, { maxWidth: 280 });
+
+          // Ao clicar no pino, rola o card da esquerda
+          marker.on('click', (function(placeId){
+            return function(){
+              var cardEl = document.getElementById('card-' + placeId);
+              if (cardEl) {
+                document.querySelectorAll('.lead-card').forEach(function(c){ c.classList.remove('active'); });
+                cardEl.classList.add('active');
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            };
+          })(p.id));
+
+          mapMarkers.push({ id: p.id, marker: marker });
+        } catch(pinErr) {
+          console.warn('Erro ao criar pino para', bizName, pinErr);
+        }
+      }
+    });
+
+    if (listEl) listEl.innerHTML = cardsHtml;
+
+    // Ajusta o zoom do mapa se houver pontos
+    if (latLngList.length && mapInstance && !mapInstance._userPanned) {
+      try {
+        mapInstance.fitBounds(latLngList, { padding: [40, 40], maxZoom: 15 });
+      } catch(boundsErr) {
+        console.warn('Erro fitBounds:', boundsErr);
+      }
+    }
+  }
+
+  // Foco do card para o pino no mapa
+  window.focusBizOnMap = function(placeId) {
+    var p = currentPlaces.find(function(x){ return x.id === placeId; });
+    if (!p || !p.location || !mapInstance) return;
+
+    mapInstance.flyTo([p.location.latitude, p.location.longitude], 16, { animate: true, duration: 0.8 });
+
+    document.querySelectorAll('.lead-card').forEach(function(c){ c.classList.remove('active'); });
+    var card = document.getElementById('card-' + placeId);
+    if (card) card.classList.add('active');
+
+    var mObj = mapMarkers.find(function(x){ return x.id === placeId; });
+    if (mObj) {
+      mObj.marker.openPopup();
+    }
+  };
+
+  // Salvar / Alternar Contato (Bookmark)
+  window.toggleSaveContact = function(placeId) {
+    var p = currentPlaces.find(function(x){ return x.id === placeId; });
+    if (!p) return;
+
+    var contacts = getContacts();
+    var idx = contacts.findIndex(function(c){ return c.place_id === placeId; });
+
+    if (idx > -1) {
+      contacts.splice(idx, 1);
+    } else {
+      contacts.push({
+        place_id: placeId,
+        name: p.displayName?.text || p.name || '',
+        rating: p.rating || 0,
+        reviews_count: p.userRatingCount || 0,
+        address: p.formattedAddress || '',
+        phone: p.nationalPhoneNumber || '',
+        notes: '',
+        status: 'contacted',
+        created_at: new Date().toISOString()
+      });
+    }
+
+    saveContacts(contacts);
+    renderFeedAndMap();
+  };
+
+  // Botões de Ação
+  document.getElementById('btn-prosp-search').onclick = function(){
+    if (mapInstance) mapInstance._userPanned = false;
+    doProspSearch('normal', false);
+  };
+  document.getElementById('btn-prosp-scan').onclick = function(){
+    if (mapInstance) mapInstance._userPanned = false;
+    doProspSearch('scan', false);
+  };
+  document.getElementById('btn-search-area').onclick = function(){
+    if (mapInstance) mapInstance._userPanned = true;
+    doProspSearch('normal', true);
+  };
+  document.getElementById('btn-clear-prosp').onclick = function(){
+    if (confirm('Limpar todas as empresas do mapa?')) {
+      currentPlaces = [];
+      renderFeedAndMap();
+    }
+  };
+  document.getElementById('btn-export-prosp').onclick = function(){
+    if (!currentPlaces.length) { alert('Nenhuma empresa encontrada para exportar.'); return; }
+    var csv = 'Nome da Empresa,Nota,Total Avaliações,Endereço,Telefone,WhatsApp,Link Google Maps\n';
+    currentPlaces.forEach(function(p){
+      var phone = p.nationalPhoneNumber || '';
+      var zap = phone.replace(/\D/g, '');
+      if (zap.length === 10 || zap.length === 11) zap = 'https://wa.me/55' + zap;
+      var gMapsUrl = p.googleMapsUri || ('https://www.google.com/maps/place/?q=place_id:' + p.id);
+      csv += [
+        '"' + (p.displayName?.text || p.name || '').replace(/"/g, '""') + '"',
+        p.rating || 0,
+        p.userRatingCount || 0,
+        '"' + (p.formattedAddress || '').replace(/"/g, '""') + '"',
+        '"' + phone + '"',
+        zap,
+        '"' + gMapsUrl + '"'
+      ].join(',') + '\n';
+    });
+    var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'empresas_prospectadas_google_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+  };
+
+  document.getElementById('prosp-kw').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('btn-prosp-search').click();
+  });
+  document.getElementById('prosp-loc').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('btn-prosp-search').click();
+  });
+
+  document.querySelectorAll('.filter-pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.filter-pill').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentFilterRange = btn.dataset.range;
+      renderFeedAndMap();
+    });
+  });
+
+  document.getElementById('chk-hide-contacted').addEventListener('change', function(){
+    renderFeedAndMap();
+  });
+
+  // ===== CONTATOS (LocalStorage) =====
+  function getContacts(){
+    try{ return JSON.parse(localStorage.getItem(CONTACTS_KEY)||'[]'); } catch(e){ return []; }
+  }
+  function saveContacts(arr){
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(arr));
+  }
+
+  function renderContacts(){
+    var contacts = getContacts();
+    var q = (document.getElementById('contacts-search').value||'').toLowerCase();
+    if(q) contacts = contacts.filter(function(c){ return [c.name,c.address,c.phone,c.notes].join(' ').toLowerCase().indexOf(q)>-1; });
+
+    var html='';
+    contacts.forEach(function(c,i){
+      var zapNum = (c.phone||'').replace(/\D/g,'');
+      if(zapNum.length===10||zapNum.length===11) zapNum='55'+zapNum;
+      html+='<tr>'+
+        '<td>'+fmtDate(c.created_at)+'</td>'+
+        '<td><b>'+esc(c.name)+'</b></td>'+
+        '<td>★ '+(c.rating||'—')+'</td>'+
+        '<td>'+(c.reviews_count||0)+'</td>'+
+        '<td style="max-width:200px;font-size:.84rem">'+esc(c.address)+'</td>'+
+        '<td>'+esc(c.phone||'—')+'</td>'+
+        '<td><span class="status status-confirmed">✅ Contatado</span></td>'+
+        '<td style="max-width:200px;font-size:.84rem">'+esc(c.notes||'—')+'</td>'+
+        '<td>'+
+          (zapNum?'<a href="https://wa.me/'+zapNum+'?text='+encodeURIComponent('Olá! Gostaria de retomar nosso contato sobre as avaliações no Google.')+'" target="_blank" style="font-size:1.2rem;text-decoration:none" title="WhatsApp">💬</a> ':'')+
+          '<button onclick="removeContact('+i+')" style="background:none;border:0;font-size:1rem;cursor:pointer" title="Remover">🗑️</button>'+
+        '</td></tr>';
+    });
+    if(!html) html='<tr><td colspan="9" class="no-data"><div class="icon">📋</div><p>Nenhum contato salvo ainda. Use a aba Prospectar para encontrar empresas.</p></td></tr>';
+    document.getElementById('contacts-body').innerHTML=html;
+  }
+  document.getElementById('contacts-search').addEventListener('input', renderContacts);
+
+  window.removeContact = function(idx){
+    if(!confirm('Remover este contato?')) return;
+    var contacts = getContacts();
+    contacts.splice(idx,1);
+    saveContacts(contacts);
+    renderContacts();
+  };
+
+  document.getElementById('export-contacts').onclick = function(){
+    var contacts = getContacts();
+    if(!contacts.length){alert('Nenhum contato para exportar');return}
+    var csv = 'Data,Nome,Nota,Avaliações,Endereço,Telefone,Status,Observações\n';
+    contacts.forEach(function(c){
+      csv += [fmtDate(c.created_at),'"'+c.name+'"',c.rating,c.reviews_count,'"'+c.address+'"',c.phone,c.status,'"'+(c.notes||'')+'"'].join(',')+'\n';
+    });
+    var blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'contatos_prospectos_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+  };
+
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+})();
+</script>
+</body>
+</html>
